@@ -206,8 +206,12 @@ class FriendsDataService {
 
     // 캐시가 있고 forceRefresh가 아니면 캐시 먼저 전송
     if (!forceRefresh && hasData(cacheKey)) {
-      yield getData(cacheKey) ?? [];
-      return;
+      final cachedData = getData(cacheKey) ?? [];
+      if (cachedData.isNotEmpty) {
+        debugPrint('📦 캐시된 데이터 먼저 전송: ${cachedData.length}명');
+        yield cachedData;
+        return;
+      }
     }
 
     // 로딩 시작
@@ -253,6 +257,17 @@ class FriendsDataService {
               data['average_rating'] = 0.0;
             }
 
+            // isActive와 isApproved 필드가 없는 경우 기본값 설정
+            if (!data.containsKey('isActive')) {
+              data['isActive'] = true;
+              debugPrint('⚠️ ${doc.id}에 isActive 필드가 없어 기본값 true 설정');
+            }
+
+            if (!data.containsKey('isApproved')) {
+              data['isApproved'] = true;
+              debugPrint('⚠️ ${doc.id}에 isApproved 필드가 없어 기본값 true 설정');
+            }
+
             allData.add(data);
           } catch (e) {
             debugPrint('⚠️ 친구 데이터 처리 오류: $e');
@@ -262,7 +277,12 @@ class FriendsDataService {
         // 정렬 후 스트림으로 전송
         _sortDataByRating(allData);
         setData(cacheKey, List.from(allData));
-        yield List.from(allData);
+
+        // 데이터가 있을 때만 yield
+        if (allData.isNotEmpty) {
+          debugPrint('📤 스트림으로 데이터 전송: ${allData.length}명');
+          yield List.from(allData);
+        }
 
         // UI 업데이트를 위한 짧은 딜레이
         await Future.delayed(const Duration(milliseconds: 100));
@@ -271,13 +291,23 @@ class FriendsDataService {
       _hasMoreData[cacheKey] = false;
       _isCacheInitialized = true;
 
+      // 최종 데이터 한 번 더 전송
+      if (allData.isNotEmpty) {
+        debugPrint('📤 최종 데이터 전송: ${allData.length}명');
+        yield List.from(allData);
+      }
+
     } catch (e) {
       debugPrint('❌ 데이터 로드 오류: $e');
       if (!hasData(cacheKey)) {
         setData(cacheKey, []);
         _hasMoreData[cacheKey] = false;
       }
-      yield getData(cacheKey) ?? [];
+      // 에러 시에도 캐시된 데이터가 있으면 전송
+      final cachedData = getData(cacheKey) ?? [];
+      if (cachedData.isNotEmpty) {
+        yield cachedData;
+      }
     } finally {
       markRequestLoaded(requestId, listType);
     }
@@ -388,6 +418,17 @@ class FriendsDataService {
             data['average_rating'] = _filterService.safeParseDouble(data['average_rating']);
           } else {
             data['average_rating'] = 0.0;
+          }
+
+          // isActive와 isApproved 필드가 없는 경우 기본값 설정
+          if (!data.containsKey('isActive')) {
+            data['isActive'] = true;
+            debugPrint('⚠️ ${doc.id}에 isActive 필드가 없어 기본값 true 설정');
+          }
+
+          if (!data.containsKey('isApproved')) {
+            data['isApproved'] = true;
+            debugPrint('⚠️ ${doc.id}에 isApproved 필드가 없어 기본값 true 설정');
           }
 
           // ✅ 예약 체크 없이 바로 추가

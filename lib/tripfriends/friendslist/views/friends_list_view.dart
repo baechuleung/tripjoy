@@ -130,6 +130,15 @@ class _FriendsListViewState extends State<FriendsListView> with AutomaticKeepAli
         // 스트림 리스너 설정
         _friendsStream!.listen((friends) {
           if (mounted) {
+            // 첫 번째 로드인지 확인
+            final isFirstLoad = _currentFriends.isEmpty && _isLoading;
+
+            // 첫 번째 로드에서 빈 데이터는 무시
+            if (isFirstLoad && friends.isEmpty) {
+              debugPrint('⚠️ 첫 번째 로드에서 빈 데이터 받음 - 무시');
+              return;
+            }
+
             _updateFriendsList(friends);
           }
         }, onError: (error) {
@@ -153,14 +162,31 @@ class _FriendsListViewState extends State<FriendsListView> with AutomaticKeepAli
   }
 
   void _updateFriendsList(List<Map<String, dynamic>> friends) {
+    debugPrint('📥 _updateFriendsList 호출: ${friends.length}명 받음');
+
+    // 빈 데이터는 무시하고 기존 데이터 유지
+    if (friends.isEmpty && _currentFriends.isNotEmpty) {
+      debugPrint('⚠️ 빈 데이터 받음 - 기존 데이터 유지');
+      return;
+    }
+
     setState(() {
       _currentFriends = friends;
-      _applyFiltersToFriends();
+      // 데이터가 있을 때만 필터 적용
+      if (_currentFriends.isNotEmpty) {
+        _applyFiltersToFriends();
+      } else {
+        // 빈 데이터일 때만 에러 처리
+        _hasError = true;
+        _errorMessage = '현재 추천할 프렌즈가 없습니다.';
+      }
       _isLoading = false;
     });
   }
 
   void _applyFiltersToFriends() {
+    debugPrint('🔄 _applyFiltersToFriends 시작: 원본 ${_currentFriends.length}명');
+
     if (_currentFriends.isEmpty) {
       _displayFriends = [];
       _hasError = true;
@@ -174,6 +200,13 @@ class _FriendsListViewState extends State<FriendsListView> with AutomaticKeepAli
     _hasError = _displayFriends.isEmpty;
     if (_hasError) {
       _errorMessage = '필터 조건에 맞는 프렌즈가 없습니다.';
+      debugPrint('❌ 필터링 후 친구가 없음 - isActive/isApproved 확인 필요');
+
+      // 디버깅: 첫 5명의 친구 상태 확인
+      for (int i = 0; i < _currentFriends.length && i < 5; i++) {
+        final friend = _currentFriends[i];
+        debugPrint('친구 ${i+1}: ${friend['name']}, isActive=${friend['isActive']}, isApproved=${friend['isApproved']}');
+      }
     }
 
     debugPrint('📊 친구 목록 상태: 전체 ${_currentFriends.length}명, 표시 ${_displayFriends.length}명');

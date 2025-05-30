@@ -251,6 +251,11 @@ class FriendsFilterService with ChangeNotifier {
       // isApproved가 없으면 true로 간주
       final bool isApproved = friend.containsKey('isApproved') ? friend['isApproved'] == true : true;
 
+      if (!isActive || !isApproved) {
+        final uid = friend['uid'] ?? friend['id'] ?? 'unknown';
+        debugPrint('❌ 필터링됨: $uid (isActive=$isActive, isApproved=$isApproved)');
+      }
+
       return isActive && isApproved;
     }).toList();
 
