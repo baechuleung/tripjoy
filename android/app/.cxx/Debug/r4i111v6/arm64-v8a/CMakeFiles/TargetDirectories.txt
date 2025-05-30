@@ -1,2 +1,0 @@
-/Users/junoo/tripjoy/android/app/.cxx/Debug/r4i111v6/arm64-v8a/CMakeFiles/edit_cache.dir
-/Users/junoo/tripjoy/android/app/.cxx/Debug/r4i111v6/arm64-v8a/CMakeFiles/rebuild_cache.dir
