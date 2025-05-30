@@ -23,15 +23,12 @@ class FriendsListView extends StatefulWidget {
 }
 
 class _FriendsListViewState extends State<FriendsListView> {
-  late final FriendsStateManager _manager;
+  FriendsStateManager? _manager;
   StreamSubscription? _streamSubscription;
 
   @override
   void initState() {
     super.initState();
-    _manager = FriendsStateManager.instance;
-    // 매번 새로 로드
-    _manager.clearCache();
     _loadData();
   }
 
@@ -40,21 +37,23 @@ class _FriendsListViewState extends State<FriendsListView> {
     super.didUpdateWidget(oldWidget);
     // friendUserIds가 변경되면 다시 로드
     if (oldWidget.friendUserIds != widget.friendUserIds) {
-      _streamSubscription?.cancel();
-      _manager.clearCache();
       _loadData();
     }
   }
 
-  void _loadData() async {
-    // 초기화 먼저 수행
-    await _manager.initialize();
+  void _loadData() {
+    print('🔄 FriendsListView: 데이터 로드 시작');
 
-    // 스트림으로 데이터 로드
-    final stream = _manager.loadFriendsStream(specificIds: widget.friendUserIds);
-    _streamSubscription = stream.listen(
+    // 기존 정리
+    _streamSubscription?.cancel();
+    _manager?.dispose();
+
+    // 새로 생성 - 매번 새로!
+    _manager = FriendsStateManager();
+
+    // 스트림 시작
+    _streamSubscription = _manager!.loadFriendsStream().listen(
           (friends) {
-        print('FriendsListView: 받은 친구 수 = ${friends.length}');
         if (mounted) {
           setState(() {});
         }
@@ -64,11 +63,13 @@ class _FriendsListViewState extends State<FriendsListView> {
   }
 
   void _showFilterBottomSheet() {
+    if (_manager == null) return;
+
     FriendsFilterBottomSheet.show(
       context,
-      currentFilters: _manager.selectedFilters,
+      currentFilters: _manager!.selectedFilters,
       onFiltersApplied: (filters) {
-        _manager.applyFilters(filters);
+        _manager!.applyFilters(filters);
       },
     );
   }
@@ -85,13 +86,18 @@ class _FriendsListViewState extends State<FriendsListView> {
   @override
   void dispose() {
     _streamSubscription?.cancel();
+    _manager?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_manager == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return ChangeNotifierProvider.value(
-      value: _manager,
+      value: _manager!,
       child: Consumer<FriendsStateManager>(
         builder: (context, manager, _) {
           return Container(
@@ -131,10 +137,12 @@ class _FriendsListViewState extends State<FriendsListView> {
   }
 
   Widget _buildContent(FriendsStateManager manager) {
+    // 로딩 중이고 데이터가 비어있을 때만 로딩 스피너 표시
     if (manager.isLoading && manager.displayFriends.isEmpty) {
       return const FriendsLoadingSpinner();
     }
 
+    // 에러가 있고 데이터가 없을 때
     if (manager.hasError && manager.displayFriends.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 24.0),
@@ -150,7 +158,8 @@ class _FriendsListViewState extends State<FriendsListView> {
       );
     }
 
-    if (manager.displayFriends.isEmpty) {
+    // 로딩이 끝났는데 데이터가 없을 때
+    if (!manager.isLoading && manager.displayFriends.isEmpty) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 24.0),
         child: Center(
@@ -165,37 +174,41 @@ class _FriendsListViewState extends State<FriendsListView> {
       );
     }
 
-    return Column(
-      children: [
-        ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          padding: const EdgeInsets.only(bottom: 16),
-          itemCount: manager.displayFriends.length,
-          itemBuilder: (context, index) {
-            final friend = manager.displayFriends[index];
-            return Column(
-              children: [
-                if (index > 0) _buildDivider(),
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 16),
-                  padding: EdgeInsets.only(
-                    top: index == 0 ? 8 : 12,
-                    bottom: 12,
+    // 데이터가 있으면 리스트 표시
+    if (manager.displayFriends.isNotEmpty) {
+      return Column(
+        children: [
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.only(bottom: 16),
+            itemCount: manager.displayFriends.length,
+            itemBuilder: (context, index) {
+              final friend = manager.displayFriends[index];
+              return Column(
+                children: [
+                  if (index > 0) _buildDivider(),
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: EdgeInsets.only(
+                      top: index == 0 ? 8 : 12,
+                      bottom: 12,
+                    ),
+                    child: FriendsListItem(
+                      friends: friend,
+                      onTap: () => _navigateToDetail(friend),
+                    ),
                   ),
-                  child: FriendsListItem(
-                    friends: friend,
-                    onTap: () => _navigateToDetail(friend),
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-        if (manager.isLoading && manager.displayFriends.isNotEmpty)
-          _buildLoadingIndicator(),
-      ],
-    );
+                ],
+              );
+            },
+          ),
+        ],
+      );
+    }
+
+    // 기본적으로 빈 컨테이너 반환
+    return const SizedBox.shrink();
   }
 
   Widget _buildDivider() {
