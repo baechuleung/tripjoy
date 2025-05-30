@@ -8,12 +8,10 @@ import '../../detail/friends_detail_page.dart';
 import '../services/random_shuffle_service.dart';
 import '../filter/friends_filter_service.dart';
 import '../services/friends_data_service.dart';
-import '../services/friends_data_service.dart';
 import '../widgets/friends_list_header.dart';
 import '../widgets/selected_filters_display.dart';
 import '../widgets/loading_spinner.dart';
 import '../widgets/friends_list_item.dart';
-import '../services/friends_request_handler.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
