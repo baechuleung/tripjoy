@@ -1,9 +1,0 @@
-{
-  "guideTypes": {
-    "GuideType.tourism": "관광 가이드",
-    "GuideType.restaurant": "맛집 가이드",
-    "GuideType.culture": "문화 체험 가이드",
-    "GuideType.business": "비즈니스 가이드",
-    "GuideType.companion": "단순 통역가 이드"
-  }
-}

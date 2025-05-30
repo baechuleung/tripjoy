@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:tripjoy/loading_widgets/menu_loading_spinner.dart';
 import '../translated_content/translated_content_page.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class UploadImagePage extends StatefulWidget {
   final String imagePath;
@@ -16,7 +17,6 @@ class UploadImagePage extends StatefulWidget {
 
 class _UploadImagePageState extends State<UploadImagePage> {
   bool _isUploading = false;
-  final String apiKey = "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";
   String _extractedText = "";
   String _translatedText = "";
 
@@ -72,6 +72,11 @@ class _UploadImagePageState extends State<UploadImagePage> {
   // gpt-4.1-mini로 이미지에서 텍스트 추출
   Future<String> _extractTextFromImage(String imagePath) async {
     try {
+      final apiKey = dotenv.env['OPENAI_API_KEY'];
+      if (apiKey == null) {
+        throw Exception('OpenAI API Key not found in .env file');
+      }
+
       File imageFile = File(imagePath);
       List<int> imageBytes = imageFile.readAsBytesSync();
       String base64Image = base64Encode(imageBytes);
@@ -116,6 +121,11 @@ class _UploadImagePageState extends State<UploadImagePage> {
   // gpt-4.1-mini로 텍스트 번역 - UTF-8 인코딩 적용
   Future<String> _translateText(String text) async {
     try {
+      final apiKey = dotenv.env['OPENAI_API_KEY'];
+      if (apiKey == null) {
+        throw Exception('OpenAI API Key not found in .env file');
+      }
+
       final response = await http.post(
           Uri.parse("https://api.openai.com/v1/chat/completions"),
           headers: {

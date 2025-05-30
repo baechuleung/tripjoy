@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class CustomerTranslationService {
   // 싱글톤 패턴 구현
@@ -12,8 +13,8 @@ class CustomerTranslationService {
   // Google Translation API 사용
   static const String _baseUrl = 'https://translation.googleapis.com/language/translate/v2';
 
-  // API 키 - 실제 키로 교체해야 함
-  static const String _apiKey = 'AIzaSyAAfi5e2l_0DmWBiwIWqB7kKyzj9uiHlGk';
+  // API 키를 환경 변수에서 가져오기
+  static String? get _apiKey => dotenv.env['GOOGLE_CLOUD_API_KEY'];
 
   // 번역 요청 함수 - 한국어로 고정
   Future<String> translateText(String text) async {
@@ -23,9 +24,15 @@ class CustomerTranslationService {
         return text;
       }
 
+      final key = _apiKey;
+      if (key == null) {
+        debugPrint('Google Cloud API Key not found in .env file');
+        return text; // API 키가 없으면 원본 텍스트 반환
+      }
+
       // HTTP 요청 보내기
       final response = await http.post(
-        Uri.parse('$_baseUrl?key=$_apiKey'),
+        Uri.parse('$_baseUrl?key=$key'),
         headers: {
           'Content-Type': 'application/json',
         },

@@ -3,6 +3,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class CustomMap extends StatefulWidget {
   final LatLng? initialPosition;
@@ -36,7 +37,8 @@ class _CustomMapState extends State<CustomMap> {
   bool _isAddressLoading = false;
   bool _isGettingLocation = false;
 
-  static const String _apiKey = 'AIzaSyAAfi5e2l_0DmWBiwIWqB7kKyzj9uiHlGk';
+  // API 키를 환경 변수에서 가져오기
+  String? get _apiKey => dotenv.env['GOOGLE_CLOUD_API_KEY'];
 
   @override
   void initState() {
@@ -63,6 +65,12 @@ class _CustomMapState extends State<CustomMap> {
       return;
     }
 
+    final key = _apiKey;
+    if (key == null) {
+      _showErrorMessage('Google Cloud API Key not found in .env file');
+      return;
+    }
+
     setState(() {
       _isLoading = true;
       _isSearching = true;
@@ -77,7 +85,7 @@ class _CustomMapState extends State<CustomMap> {
                 '&radius=50000'
                 '&language=ko'
                 '&region=kr'
-                '&key=$_apiKey'
+                '&key=$key'
         ),
       );
 
@@ -132,6 +140,12 @@ class _CustomMapState extends State<CustomMap> {
   Future<void> _getAddressFromPosition(LatLng position) async {
     if (_isAddressLoading) return;
 
+    final key = _apiKey;
+    if (key == null) {
+      _showErrorMessage('Google Cloud API Key not found in .env file');
+      return;
+    }
+
     setState(() {
       _isAddressLoading = true;
     });
@@ -143,7 +157,7 @@ class _CustomMapState extends State<CustomMap> {
                 '?latlng=${position.latitude},${position.longitude}'
                 '&language=ko'
                 '&result_type=street_address|premise|subpremise'
-                '&key=$_apiKey'
+                '&key=$key'
         ),
       );
 
@@ -165,7 +179,7 @@ class _CustomMapState extends State<CustomMap> {
                 'https://maps.googleapis.com/maps/api/geocode/json'
                     '?latlng=${position.latitude},${position.longitude}'
                     '&language=ko'
-                    '&key=$_apiKey'
+                    '&key=$key'
             ),
           );
 
@@ -264,6 +278,12 @@ class _CustomMapState extends State<CustomMap> {
         _isGettingLocation = false;
       });
     }
+  }
+
+  void _showErrorMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   @override

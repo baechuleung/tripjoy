@@ -1,7 +1,0 @@
-flutter_launcher_icons:
-  android: true
-  ios: true
-  image_path: "assets/app_icon.jpg"
-  min_sdk_android: 21 # android min sdk min:16, default 21
-  adaptive_icon_background: "#7269F7" # 안드로이드 adaptive icon 배경색
-  adaptive_icon_foreground: "assets/app_icon_foreground.jpg" # 안드로이드 adaptive icon 전경 이미지

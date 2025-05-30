@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class FriendsIntroduction extends StatefulWidget {
   final Map<String, dynamic> friends;
@@ -82,7 +83,11 @@ class _FriendsIntroductionState extends State<FriendsIntroduction> {
     try {
       print('번역 시작...');
 
-      final apiKey = 'AIzaSyAAfi5e2l_0DmWBiwIWqB7kKyzj9uiHlGk';
+      final apiKey = dotenv.env['GOOGLE_CLOUD_API_KEY'];
+      if (apiKey == null) {
+        throw Exception('Google Cloud API Key not found in .env file');
+      }
+
       final url = 'https://translation.googleapis.com/language/translate/v2?key=$apiKey';
 
       print('번역할 텍스트: $_introduction');
@@ -95,8 +100,6 @@ class _FriendsIntroductionState extends State<FriendsIntroduction> {
         },
         body: jsonEncode({
           'q': _introduction,
-          // 'auto'가 아닌 빈 문자열로 설정하거나 아예 생략하기
-          // 'source': 'auto', // 이 줄 제거
           'target': 'ko',
           'format': 'text',
         }),
@@ -127,6 +130,9 @@ class _FriendsIntroductionState extends State<FriendsIntroduction> {
           setState(() {
             _isTranslating = false;
           });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('번역 응답 형식 오류')),
+          );
         }
       } else {
         print('번역 API 오류 - 상태 코드: ${response.statusCode}');
@@ -134,6 +140,9 @@ class _FriendsIntroductionState extends State<FriendsIntroduction> {
         setState(() {
           _isTranslating = false;
         });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('번역 API 오류: ${response.statusCode}')),
+        );
       }
     } catch (e) {
       print('번역 중 예외 발생: $e');
@@ -141,6 +150,9 @@ class _FriendsIntroductionState extends State<FriendsIntroduction> {
       setState(() {
         _isTranslating = false;
       });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('번역 중 오류 발생: $e')),
+      );
     }
   }
 
