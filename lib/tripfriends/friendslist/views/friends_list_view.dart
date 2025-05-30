@@ -5,14 +5,11 @@ import '../controllers/friends_list_controller.dart';
 import '../filter/friends_filter_view.dart';
 import '../filter/filter_constants.dart';
 import '../../detail/friends_detail_page.dart';
-import '../services/random_shuffle_service.dart';
-import '../filter/friends_filter_service.dart';
-import '../services/friends_data_service.dart';
+import '../services/friends_list_manager.dart';
 import '../widgets/friends_list_header.dart';
 import '../widgets/selected_filters_display.dart';
 import '../widgets/loading_spinner.dart';
 import '../widgets/friends_list_item.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FriendsListView extends StatefulWidget {
@@ -33,19 +30,14 @@ class _FriendsListViewState extends State<FriendsListView> with AutomaticKeepAli
   @override
   bool get wantKeepAlive => true;
 
-  final FriendsFilterService _filterService = FriendsFilterService();
-  final RandomShuffleService _shuffleService = RandomShuffleService();
-  final FriendsDataService _dataService = FriendsDataService();
+  final FriendsListManager _manager = FriendsListManager();
 
   bool _isFilterApplied = false;
-  int _forceRefreshCounter = 0;
-  String? _requestCity;
-  String? _requestNationality;
-  String? _requestDocId;
   bool _isLoading = true;
   bool _hasError = false;
   String _errorMessage = '';
   List<Map<String, dynamic>> _currentFriends = [];
+  List<Map<String, dynamic>> _displayFriends = [];
   Stream<List<Map<String, dynamic>>>? _friendsStream;
 
   @override
@@ -59,7 +51,7 @@ class _FriendsListViewState extends State<FriendsListView> with AutomaticKeepAli
     }
 
     globalFriendsListController!.preserveStateOnReset = true;
-    _shuffleService.shuffleEnabled = true;
+    _manager.setShuffleEnabled(true);
 
     _checkFilterStatus();
 
@@ -70,90 +62,40 @@ class _FriendsListViewState extends State<FriendsListView> with AutomaticKeepAli
   }
 
   void _checkFilterStatus() {
-    bool hasActiveFilters = false;
-
-    for (var category in globalFriendsListController!.selectedFilters.keys) {
-      if (globalFriendsListController!.selectedFilters[category]!.isNotEmpty &&
-          !globalFriendsListController!.selectedFilters[category]!.contains('상관없음') &&
-          !globalFriendsListController!.selectedFilters[category]!.contains('전체')) {
-        hasActiveFilters = true;
-        break;
-      }
-    }
-
-    if (mounted) {
-      setState(() {
-        _isFilterApplied = hasActiveFilters;
-      });
-    }
+    _isFilterApplied = _manager.hasActiveFilters(
+        globalFriendsListController!.selectedFilters
+    );
   }
 
   Future<void> _loadInitialData() async {
-    final currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser == null) {
-      setState(() {
-        _isLoading = false;
-        _hasError = true;
-        _errorMessage = '로그인이 필요합니다.';
-      });
-      return;
-    }
-
     try {
-      // plan_requests 정보 가져오기
-      final requestSnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(currentUser.uid)
-          .collection('plan_requests')
-          .limit(1)
-          .get();
+      // plan_request 정보 로드
+      final requestInfo = await _manager.loadPlanRequest();
 
-      if (requestSnapshot.docs.isEmpty) {
-        setState(() {
-          _isLoading = false;
-          _hasError = true;
-          _errorMessage = '여행 요청 정보가 없습니다.';
-        });
-        return;
-      }
-
-      final requestDoc = requestSnapshot.docs.first;
-      _requestDocId = requestDoc.id;
-      final requestData = requestDoc.data();
-
-      if (requestData['location'] is Map) {
-        final location = Map<String, dynamic>.from(requestData['location'] as Map);
-        _requestCity = location['city'] as String?;
-        _requestNationality = location['nationality'] as String?;
-
-        _filterService.setLocationFilter(_requestCity, _requestNationality);
-        globalFriendsListController!.setLocationInfo(_requestCity, _requestNationality);
-      }
-
-      if (_requestCity == null || _requestNationality == null) {
-        setState(() {
-          _isLoading = false;
-          _hasError = true;
-          _errorMessage = '여행 요청의 위치 정보가 불완전합니다.';
-        });
-        return;
-      }
+      // 컨트롤러에 위치 정보 설정
+      globalFriendsListController!.setLocationInfo(
+          requestInfo['city'],
+          requestInfo['nationality']
+      );
 
       // 데이터 로드
       await _loadFriendsData();
 
     } catch (e) {
-      debugPrint('⚠️ 초기 데이터 로드 오류: $e');
       setState(() {
         _isLoading = false;
         _hasError = true;
-        _errorMessage = '데이터를 불러오는 중 오류가 발생했습니다.';
+        _errorMessage = e.toString().replaceAll('Exception: ', '');
       });
     }
   }
 
   Future<void> _loadFriendsData() async {
-    if (_requestDocId == null || _requestCity == null || _requestNationality == null) {
+    final requestDocId = _manager.requestDocId;
+    final requestCity = _manager.requestCity;
+    final requestNationality = _manager.requestNationality;
+
+    if (requestDocId == null || requestCity == null || requestNationality == null) {
       return;
     }
 
@@ -161,35 +103,26 @@ class _FriendsListViewState extends State<FriendsListView> with AutomaticKeepAli
 
     try {
       if (widget.friendUserIds != null) {
-        // 특정 친구 목록은 기존 방식 유지
-        final friends = await _dataService.loadMoreFriendsWithIds(
+        // 특정 친구 목록
+        final friends = await _manager.dataService.loadMoreFriendsWithIds(
             widget.friendUserIds!,
-            {'city': _requestCity, 'nationality': _requestNationality},
-            _requestDocId!,
+            {'city': requestCity, 'nationality': requestNationality},
+            requestDocId,
             cacheKey,
             forceRefresh: true
         );
 
-        setState(() {
-          _currentFriends = friends;
-          _isLoading = false;
-          _hasError = friends.isEmpty;
-          if (_hasError) {
-            _errorMessage = '현재 추천할 프렌즈가 없습니다.';
-          }
-        });
+        _updateFriendsList(friends);
       } else {
-        // 일반 친구 목록은 스트림 방식
+        // 일반 친구 목록 - 스트림 방식
         final query = FirebaseFirestore.instance
             .collection('tripfriends_users')
-            .where('location.city', isEqualTo: _requestCity)
-            .where('location.nationality', isEqualTo: _requestNationality)
-            .where('isActive', isEqualTo: true)
-            .where('isApproved', isEqualTo: true);
+            .where('location.city', isEqualTo: requestCity)
+            .where('location.nationality', isEqualTo: requestNationality);
 
-        _friendsStream = _dataService.loadFriendsStream(
+        _friendsStream = _manager.dataService.loadFriendsStream(
             query,
-            _requestDocId!,
+            requestDocId,
             cacheKey,
             forceRefresh: true
         );
@@ -197,11 +130,7 @@ class _FriendsListViewState extends State<FriendsListView> with AutomaticKeepAli
         // 스트림 리스너 설정
         _friendsStream!.listen((friends) {
           if (mounted) {
-            setState(() {
-              _currentFriends = friends;
-              _isLoading = false;
-              _hasError = false;
-            });
+            _updateFriendsList(friends);
           }
         }, onError: (error) {
           debugPrint('❌ 스트림 오류: $error');
@@ -223,47 +152,49 @@ class _FriendsListViewState extends State<FriendsListView> with AutomaticKeepAli
     }
   }
 
-  void _showFilterBottomSheet() {
-    if (_requestCity != null && _requestNationality != null) {
-      _filterService.setLocationFilter(_requestCity, _requestNationality);
+  void _updateFriendsList(List<Map<String, dynamic>> friends) {
+    setState(() {
+      _currentFriends = friends;
+      _applyFiltersToFriends();
+      _isLoading = false;
+    });
+  }
+
+  void _applyFiltersToFriends() {
+    if (_currentFriends.isEmpty) {
+      _displayFriends = [];
+      _hasError = true;
+      _errorMessage = '현재 추천할 프렌즈가 없습니다.';
+      return;
     }
 
+    // 통합 관리자를 통해 친구 목록 처리
+    _displayFriends = _manager.processFriendsList(_currentFriends);
+
+    _hasError = _displayFriends.isEmpty;
+    if (_hasError) {
+      _errorMessage = '필터 조건에 맞는 프렌즈가 없습니다.';
+    }
+
+    debugPrint('📊 친구 목록 상태: 전체 ${_currentFriends.length}명, 표시 ${_displayFriends.length}명');
+  }
+
+  void _showFilterBottomSheet() {
     FriendsFilter.showFilterBottomSheet(
         context,
             (query, selectedFilters) async {
-          bool hasActiveFilters = false;
-          bool hasRatingFilter = false;
-          bool hasMatchCountFilter = false;
+          final hasActiveFilters = _manager.hasActiveFilters(selectedFilters);
+          final hasSortingFilter = _manager.hasSortingFilter(selectedFilters);
 
-          for (var category in selectedFilters.keys) {
-            if (selectedFilters[category]!.isNotEmpty &&
-                !selectedFilters[category]!.contains('상관없음') &&
-                !selectedFilters[category]!.contains('전체')) {
-              hasActiveFilters = true;
-            }
-
-            if (category == FilterConstants.RATING &&
-                selectedFilters[category]!.isNotEmpty &&
-                !selectedFilters[category]!.contains('상관없음')) {
-              hasRatingFilter = true;
-            }
-
-            if (category == FilterConstants.MATCH_COUNT &&
-                selectedFilters[category]!.isNotEmpty &&
-                !selectedFilters[category]!.contains('상관없음')) {
-              hasMatchCountFilter = true;
-            }
-          }
-
-          _shuffleService.shuffleEnabled = !(hasRatingFilter || hasMatchCountFilter);
-          _shuffleService.clearAllCache();
+          // 정렬 필터가 있으면 셔플 비활성화
+          _manager.setShuffleEnabled(!hasSortingFilter);
 
           await globalFriendsListController!.applyFilters(query, selectedFilters);
 
           if (mounted) {
             setState(() {
               _isFilterApplied = hasActiveFilters;
-              _forceRefreshCounter++;
+              _applyFiltersToFriends();
             });
           }
         },
@@ -277,22 +208,6 @@ class _FriendsListViewState extends State<FriendsListView> with AutomaticKeepAli
       MaterialPageRoute(
         builder: (context) => FriendsDetailPage(friends: friends),
         maintainState: true,
-      ),
-    );
-  }
-
-  Widget _buildFriendItem(Map<String, dynamic> friend, FriendsListController controller) {
-    // 필터 적용
-    final filteredList = _filterService.applyClientSideFilters([friend]);
-    if (filteredList.isEmpty) {
-      return Container();
-    }
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      child: FriendsListItem(
-        friends: friend,
-        onTap: () => _navigateToDetail(context, friend),
       ),
     );
   }
@@ -325,85 +240,114 @@ class _FriendsListViewState extends State<FriendsListView> with AutomaticKeepAli
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Column(
-                    children: [
-                      FriendsListHeader(
+                Column(
+                  children: [
+                    // 헤더는 항상 위쪽 패딩 유지
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: FriendsListHeader(
                         onFilterTap: _showFilterBottomSheet,
-                        friendsCount: _currentFriends.length,
+                        friendsCount: _displayFriends.length,
                       ),
+                    ),
 
-                      SelectedFiltersDisplay(
-                        selectedFilters: controller.selectedFilters,
-                        onRemoveFilter: controller.removeFilter,
+                    SelectedFiltersDisplay(
+                      selectedFilters: controller.selectedFilters,
+                      onRemoveFilter: (category, option) {
+                        controller.removeFilter(category, option);
+
+                        // 모든 필터가 제거되었는지 확인
+                        final hasActiveFilters = _manager.hasActiveFilters(
+                            controller.selectedFilters
+                        );
+
+                        // 정렬 필터가 있는지 확인
+                        final hasSortingFilter = _manager.hasSortingFilter(
+                            controller.selectedFilters
+                        );
+
+                        // 셔플 상태 업데이트
+                        _manager.setShuffleEnabled(!hasSortingFilter);
+
+                        setState(() {
+                          _isFilterApplied = hasActiveFilters;
+                          _applyFiltersToFriends();
+                        });
+                      },
+                    ),
+
+                    if (_isLoading && _currentFriends.isEmpty) ...[
+                      const FriendsLoadingSpinner(),
+                    ] else if (_hasError && _displayFriends.isEmpty) ...[
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 24.0),
+                        child: Center(
+                          child: Text(
+                            _errorMessage,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Color(0xFF666666),
+                            ),
+                          ),
+                        ),
                       ),
+                    ] else ...[
+                      // 친구 목록 표시
+                      if (_displayFriends.isNotEmpty) ...[
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          padding: const EdgeInsets.only(bottom: 16), // 하단 패딩만 유지
+                          itemCount: _displayFriends.length,
+                          itemBuilder: (context, index) {
+                            final friend = _displayFriends[index];
+                            return Column(
+                              children: [
+                                // 첫 번째 아이템 위에는 divider 없음
+                                if (index > 0)
+                                  const Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: 32),
+                                    child: Divider(
+                                      height: 1,
+                                      thickness: 1,
+                                      color: Color(0xFFE4E4E4),
+                                    ),
+                                  ),
+                                Container(
+                                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                                  padding: EdgeInsets.only(
+                                    top: index == 0 ? 8 : 12, // 첫 번째 아이템은 위 패딩 줄임
+                                    bottom: 12,
+                                  ),
+                                  child: FriendsListItem(
+                                    friends: friend,
+                                    onTap: () => _navigateToDetail(context, friend),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      ],
 
-                      if (_isLoading && _currentFriends.isEmpty) ...[
-                        const FriendsLoadingSpinner(),
-                      ] else if (_hasError && _currentFriends.isEmpty) ...[
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 24.0),
+                      // 로딩 중 표시 (데이터가 있을 때)
+                      if (_isLoading && _currentFriends.isNotEmpty) ...[
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 16.0),
                           child: Center(
-                            child: Text(
-                              _errorMessage,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Color(0xFF666666),
+                            child: SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF3182F6)),
                               ),
                             ),
                           ),
                         ),
-                      ] else ...[
-                        // 실시간으로 추가되는 친구 목록
-                        if (_currentFriends.isNotEmpty) ...[
-                          AnimatedList(
-                            key: GlobalKey<AnimatedListState>(),
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            initialItemCount: _currentFriends.length,
-                            itemBuilder: (context, index, animation) {
-                              if (index >= _currentFriends.length) return Container();
-
-                              final friend = _currentFriends[index];
-                              return SlideTransition(
-                                position: animation.drive(
-                                  Tween(
-                                    begin: const Offset(1.0, 0.0),
-                                    end: Offset.zero,
-                                  ).chain(CurveTween(curve: Curves.easeOut)),
-                                ),
-                                child: FadeTransition(
-                                  opacity: animation,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(bottom: 12),
-                                    child: _buildFriendItem(friend, controller),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-
-                        // 로딩 중 표시 (데이터가 있을 때)
-                        if (_isLoading && _currentFriends.isNotEmpty) ...[
-                          const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 16.0),
-                            child: Center(
-                              child: SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF3182F6)),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
                       ],
                     ],
-                  ),
+                  ],
                 ),
               ],
             ),

@@ -53,11 +53,9 @@ class FriendsFilterService with ChangeNotifier {
     _isFilterRefreshing = true;
     notifyListeners();
 
-    // 기본 쿼리 설정 - isActive와 isApproved가 모두 true인 항목만 필터링
+    // 기본 쿼리 설정 - isActive와 isApproved 조건 제거
     Query query = FirebaseFirestore.instance
-        .collection('tripfriends_users')
-        .where('isActive', isEqualTo: true)
-        .where('isApproved', isEqualTo: true);
+        .collection('tripfriends_users');
 
     // 위치 필터가 설정되어 있으면 적용
     if (_requestCity != null && _requestNationality != null) {
@@ -246,15 +244,14 @@ class FriendsFilterService with ChangeNotifier {
       }
     });
 
-    // isActive와 isApproved 상태 검증 (클라이언트 측 추가 필터링)
+    // isActive와 isApproved 상태 검증 - 필드가 없으면 기본값 적용
     List<Map<String, dynamic>> preFiltered = friends.where((friend) {
-      final bool isActive = friend['isActive'] == true;
-      final bool isApproved = friend['isApproved'] == true;
+      // isActive가 없으면 true로 간주
+      final bool isActive = friend.containsKey('isActive') ? friend['isActive'] == true : true;
+      // isApproved가 없으면 true로 간주
+      final bool isApproved = friend.containsKey('isApproved') ? friend['isApproved'] == true : true;
 
-      if (!isActive || !isApproved) {
-        return false;
-      }
-      return true;
+      return isActive && isApproved;
     }).toList();
 
     debugPrint('🔍 사전 필터링 후: ${preFiltered.length}명 (isActive && isApproved)');

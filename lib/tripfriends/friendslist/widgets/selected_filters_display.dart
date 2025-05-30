@@ -15,10 +15,10 @@ class SelectedFiltersDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 선택된 필터가 없으면 표시하지 않음
+    // 선택된 필터가 없으면 빈 SizedBox 반환 (공간 차지 안함)
     if (selectedFilters.isEmpty ||
         selectedFilters.values.every((options) => options.isEmpty)) {
-      return Container(height: 0);
+      return const SizedBox.shrink();
     }
 
     // 선택된 필터 태그 준비

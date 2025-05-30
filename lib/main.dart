@@ -9,6 +9,7 @@ import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platf
 import 'dart:io' show Platform;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';  // 추가
 import 'routes.dart';
 import 'theme.dart';
 import 'firebase_service.dart';
@@ -34,6 +35,9 @@ class AppInitializer {
     try {
       print('🔥 필수 서비스 초기화 시작');
 
+      // .env 파일 먼저 로드 (API 키 사용 전에)
+      await _initDotenv();
+
       // Firebase 먼저 초기화 (핵심 서비스로 가정)
       await _initFirebase();
 
@@ -42,6 +46,24 @@ class AppInitializer {
     } catch (e, stackTrace) {
       print('⚠️ 필수 초기화 중 오류 발생: $e');
       print('스택 트레이스: $stackTrace');
+    }
+  }
+
+  // .env 파일 초기화 추가
+  Future<void> _initDotenv() async {
+    try {
+      await dotenv.load(fileName: ".env");
+      print('✅ .env 파일 로드 완료');
+
+      // 환경 변수 확인 (디버깅용)
+      final openaiKey = dotenv.env['OPENAI_API_KEY'];
+      final googleKey = dotenv.env['GOOGLE_CLOUD_API_KEY'];
+
+      print('🔑 OPENAI_API_KEY 존재: ${openaiKey != null && openaiKey.isNotEmpty}');
+      print('🔑 GOOGLE_CLOUD_API_KEY 존재: ${googleKey != null && googleKey.isNotEmpty}');
+    } catch (e) {
+      print('⚠️ .env 파일 로드 실패: $e');
+      print('⚠️ .env 파일이 프로젝트 루트에 있고 pubspec.yaml의 assets에 등록되어 있는지 확인하세요.');
     }
   }
 

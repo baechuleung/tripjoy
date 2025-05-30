@@ -25,6 +25,9 @@ class RandomShuffleService {
   // 마지막 문서 ID getter (디버깅용)
   String get lastRequestDocId => _lastRequestDocId;
 
+  // 셔플 활성화 여부 getter
+  bool get shuffleEnabled => _shuffleEnabled;
+
   // 셔플 활성화/비활성화 설정
   set shuffleEnabled(bool value) {
     _shuffleEnabled = value;
