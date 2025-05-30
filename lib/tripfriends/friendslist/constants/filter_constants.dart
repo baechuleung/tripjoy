@@ -1,4 +1,4 @@
-// lib/tripfriends/friendslist/filter/filter_constants.dart
+// lib/tripfriends/friendslist/constants/filter_constants.dart
 import 'package:flutter/material.dart';
 
 /// 필터 관련 상수와 유틸리티 함수를 중앙 집중화한 클래스
@@ -27,32 +27,22 @@ class FilterConstants {
     };
   }
 
-
-  // 언어 코드 변환 (중복 제거)
+  // 언어 코드 변환
   static String getLanguageCode(String selectedLanguage) {
-    debugPrint('🔍 언어 코드 변환: $selectedLanguage');
-
     switch (selectedLanguage) {
       case '한국어':
-        debugPrint('  → korean');
         return 'korean';
       case '영어':
-        debugPrint('  → english');
         return 'english';
       case '일본어':
-        debugPrint('  → japanese');
         return 'japanese';
       case '중국어':
-        debugPrint('  → chinese');
         return 'chinese';
       case '베트남어':
-        debugPrint('  → vietnamese');
         return 'vietnamese';
       case '태국어':
-        debugPrint('  → thai');
         return 'thai';
       default:
-        debugPrint('  → 빈 문자열 (매칭 없음)');
         return '';
     }
   }

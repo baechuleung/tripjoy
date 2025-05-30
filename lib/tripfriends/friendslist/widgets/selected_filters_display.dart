@@ -1,6 +1,6 @@
 // lib/tripfriends/friendslist/widgets/selected_filters_display.dart
 import 'package:flutter/material.dart';
-import '../filter/filter_constants.dart';
+import '../constants/filter_constants.dart';
 
 /// 선택된 필터 표시 위젯
 class SelectedFiltersDisplay extends StatelessWidget {
