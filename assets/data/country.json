@@ -1,0 +1,14 @@
+{
+  "countries": [
+    {"code": "KR", "names": {"KR": "한국", "JP": "韓国", "VN": "Hàn Quốc", "TH": "เกาหลีใต้", "TW": "韓國", "CN": "韩国", "HK": "韓國", "PH": "South Korea", "GU": "South Korea", "SG": "South Korea"}},
+    {"code": "JP", "names": {"KR": "일본", "JP": "日本", "VN": "Nhật Bản", "TH": "ญี่ปุ่น", "TW": "日本", "CN": "日本", "HK": "日本", "PH": "Japan", "GU": "Japan", "SG": "Japan"}},
+    {"code": "VN", "names": {"KR": "베트남", "JP": "ベトナム", "VN": "Việt Nam", "TH": "เวียดนาม", "TW": "越南", "CN": "越南", "HK": "越南", "PH": "Vietnam", "GU": "Vietnam", "SG": "Vietnam"}},
+    {"code": "TH", "names": {"KR": "태국", "JP": "タイ", "VN": "Thái Lan", "TH": "ประเทศไทย", "TW": "泰國", "CN": "泰国", "HK": "泰國", "PH": "Thailand", "GU": "Thailand", "SG": "Thailand"}},
+    {"code": "TW", "names": {"KR": "대만", "JP": "台湾", "VN": "Đài Loan", "TH": "ไต้หวัน", "TW": "臺灣", "CN": "台湾", "HK": "臺灣", "PH": "Taiwan", "GU": "Taiwan", "SG": "Taiwan"}},
+    {"code": "CN", "names": {"KR": "중국", "JP": "中国", "VN": "Trung Quốc", "TH": "จีน", "TW": "中國", "CN": "中国", "HK": "中國", "PH": "China", "GU": "China", "SG": "China"}},
+    {"code": "HK", "names": {"KR": "홍콩", "JP": "香港", "VN": "Hồng Kông", "TH": "ฮ่องกง", "TW": "香港", "CN": "香港", "HK": "香港", "PH": "Hong Kong", "GU": "Hong Kong", "SG": "Hong Kong"}},
+    {"code": "PH", "names": {"KR": "필리핀", "JP": "フィリピン", "VN": "Philippines", "TH": "ฟิลิปปินส์", "TW": "菲律賓", "CN": "菲律宾", "HK": "菲律賓", "PH": "Philippines", "GU": "Philippines", "SG": "Philippines"}},
+    {"code": "GU", "names": {"KR": "괌", "JP": "グアム", "VN": "Guam", "TH": "กวม", "TW": "關島", "CN": "关岛", "HK": "關島", "PH": "Guam", "GU": "Guam", "SG": "Guam"}},
+    {"code": "SG", "names": {"KR": "싱가포르", "JP": "シンガポール", "VN": "Singapore", "TH": "สิงคโปร์", "TW": "新加坡", "CN": "新加坡", "HK": "新加坡", "PH": "Singapore", "GU": "Singapore", "SG": "Singapore"}}
+  ]
+}

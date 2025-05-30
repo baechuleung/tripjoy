@@ -1,0 +1,70 @@
+{
+  "project_info": {
+    "project_number": "485728455682",
+    "project_id": "tripjoy-d309f",
+    "storage_bucket": "tripjoy-d309f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:485728455682:android:3136360daec56f6dd5eb1b",
+        "android_client_info": {
+          "package_name": "com.leapcompany.tripjoy"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "485728455682-l2k0jddb8p305pr361ll0ibhktha9k43.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.leapcompany.tripjoy",
+            "certificate_hash": "948a44d82362fe1b3734837afa8769c329d0b69c"
+          }
+        },
+        {
+          "client_id": "485728455682-lm8do2f7vjopa19ofklp12581bkirh23.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.leapcompany.tripjoy",
+            "certificate_hash": "c6ea6d97db19535cfb92fd4837d976f3e66bd8e4"
+          }
+        },
+        {
+          "client_id": "485728455682-ph07e4mm4plfmdn5sn5rg8crn0aq8rgb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.leapcompany.tripjoy",
+            "certificate_hash": "5fbf7f45d6fc954d54a0273e360a30d737b70291"
+          }
+        },
+        {
+          "client_id": "485728455682-nou2gv7t4jm1dog0ipm1t3kgoe8ncbr1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCfuBkl09OlnQStII4Bxl_IYScQoRtm7oA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "485728455682-nou2gv7t4jm1dog0ipm1t3kgoe8ncbr1.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "485728455682-4h9sphsef1e6sk6oqep7u9bfpls624ms.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.leapcompany.tripjoy"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
