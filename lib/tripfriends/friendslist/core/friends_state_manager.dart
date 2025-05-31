@@ -9,14 +9,14 @@ import 'friends_repository.dart';
 
 /// 친구 목록의 모든 상태를 관리하는 통합 매니저
 class FriendsStateManager with ChangeNotifier {
-  // 싱글톤 인스턴스
-  static FriendsStateManager? _instance;
-  static FriendsStateManager get instance {
-    _instance ??= FriendsStateManager._();
-    return _instance!;
-  }
+  // 정적 변수로 데이터 저장 (페이지 이동해도 유지)
+  static List<Map<String, dynamic>> _cachedAllFriends = [];
+  static List<Map<String, dynamic>> _cachedDisplayFriends = [];
+  static Map<String, Set<String>> _cachedFilters = {};
+  static String? _cachedRequestDocId;
+  static bool _hasCachedData = false;
 
-  FriendsStateManager._() {
+  FriendsStateManager() {
     _repository = FriendsRepository();
   }
 
@@ -27,29 +27,24 @@ class FriendsStateManager with ChangeNotifier {
   bool _isDisposed = false;
 
   // 상태 변수들
-  bool _isLoading = false; // 처음엔 로딩하지 않음
+  bool _isLoading = false;
   bool _hasError = false;
   String _errorMessage = '';
-  bool _hasLoadedData = false; // 데이터 로드 여부
 
   // 위치 정보
   String? _requestCity;
   String? _requestNationality;
-  String? _lastRequestDocId; // 마지막 plan_request ID
 
   // 필터 상태
-  Map<String, Set<String>> _selectedFilters = {};
+  Map<String, Set<String>> get selectedFilters => _cachedFilters;
 
-  // 데이터 - 단순하게!
-  List<Map<String, dynamic>> _allFriends = [];
-  List<Map<String, dynamic>> _displayFriends = [];
+  // 데이터
+  List<Map<String, dynamic>> get displayFriends => _cachedDisplayFriends;
 
   // Getters
   bool get isLoading => _isLoading;
   bool get hasError => _hasError;
   String get errorMessage => _errorMessage;
-  List<Map<String, dynamic>> get displayFriends => _displayFriends;
-  Map<String, Set<String>> get selectedFilters => _selectedFilters;
 
   /// 친구 데이터 스트림으로 로드 - 단순하게!
   Stream<List<Map<String, dynamic>>> loadFriendsStream() async* {
@@ -60,23 +55,23 @@ class FriendsStateManager with ChangeNotifier {
       final requestInfo = await _repository.loadPlanRequest();
       final newDocId = requestInfo['docId'];
 
-      // 2. 이미 로드된 데이터가 있고, 같은 plan_request라면 기존 데이터 사용
-      if (_hasLoadedData && _lastRequestDocId == newDocId) {
-        print('📍 기존 데이터 재사용');
-        yield List.from(_displayFriends);
+      // 2. 캐시된 데이터가 있고 같은 plan_request면 바로 반환
+      if (_hasCachedData && _cachedRequestDocId == newDocId && _cachedAllFriends.isNotEmpty) {
+        print('📍 캐시된 데이터 사용');
+        yield List.from(_cachedDisplayFriends);
         return;
       }
 
-      // 3. 새로운 plan_request거나 처음 로드하는 경우
+      // 3. 새로운 데이터 로드
       _setLoading(true);
-      _allFriends.clear();
-      _displayFriends.clear();
-      _lastRequestDocId = newDocId;
+      _cachedAllFriends.clear();
+      _cachedDisplayFriends.clear();
+      _cachedRequestDocId = newDocId;
 
       _requestCity = requestInfo['city'];
       _requestNationality = requestInfo['nationality'];
 
-      print('📍 새로운 위치: $_requestCity/$_requestNationality');
+      print('📍 위치: $_requestCity/$_requestNationality');
 
       // 4. 해당 위치의 친구들 가져오기
       final query = FirebaseFirestore.instance
@@ -102,7 +97,7 @@ class FriendsStateManager with ChangeNotifier {
         }
 
         // 데이터 추가
-        _allFriends.add(friend);
+        _cachedAllFriends.add(friend);
       }
 
       // 6. 모든 데이터 로드 완료 후 처리
@@ -113,12 +108,12 @@ class FriendsStateManager with ChangeNotifier {
         // 필터 적용
         _applyFilters();
 
-        // 로딩 완료 및 상태 저장
-        _hasLoadedData = true;
+        // 로딩 완료
+        _hasCachedData = true;
         _setLoading(false);
 
         // 결과 반환
-        yield List.from(_displayFriends);
+        yield List.from(_cachedDisplayFriends);
       }
 
     } catch (e) {
@@ -133,36 +128,35 @@ class FriendsStateManager with ChangeNotifier {
 
   /// 친구 목록 랜덤 정렬
   void _shuffleFriends() {
-    if (_allFriends.isEmpty) return;
+    if (_cachedAllFriends.isEmpty) return;
 
     final random = Random();
-    _allFriends.shuffle(random);
-    print('🎲 친구 목록 랜덤 정렬 완료 - ${_allFriends.length}명');
+    _cachedAllFriends.shuffle(random);
+    print('🎲 친구 목록 랜덤 정렬 완료 - ${_cachedAllFriends.length}명');
   }
 
   /// 필터 적용 - 단순하게!
   void _applyFilters() {
     // 필터가 없으면 전체 표시
-    if (_selectedFilters.isEmpty) {
-      _displayFriends = List.from(_allFriends);
+    if (_cachedFilters.isEmpty) {
+      _cachedDisplayFriends = List.from(_cachedAllFriends);
       return;
     }
 
     // 필터 적용
-    _displayFriends = FilterHandler.applyFilters(_allFriends, _selectedFilters);
+    _cachedDisplayFriends = FilterHandler.applyFilters(_cachedAllFriends, _cachedFilters);
 
     // 정렬 적용
-    final sortType = FilterHandler.getSortTypeFromFilters(_selectedFilters);
+    final sortType = FilterHandler.getSortTypeFromFilters(_cachedFilters);
     if (sortType != 'none') {
-      _displayFriends = FilterHandler.sortFriends(_displayFriends, sortType);
+      _cachedDisplayFriends = FilterHandler.sortFriends(_cachedDisplayFriends, sortType);
     }
-    // 정렬이 없으면 원본(랜덤) 순서 유지
   }
 
   /// 필터 적용
   void applyFilters(Map<String, Set<String>> filters) {
     if (_isDisposed) return;
-    _selectedFilters = Map.from(filters);
+    _cachedFilters = Map.from(filters);
     _applyFilters();
     notifyListeners();
   }
@@ -170,9 +164,9 @@ class FriendsStateManager with ChangeNotifier {
   /// 필터 제거
   void removeFilter(String category, String option) {
     if (_isDisposed) return;
-    _selectedFilters[category]?.remove(option);
-    if (_selectedFilters[category]?.isEmpty ?? false) {
-      _selectedFilters.remove(category);
+    _cachedFilters[category]?.remove(option);
+    if (_cachedFilters[category]?.isEmpty ?? false) {
+      _cachedFilters.remove(category);
     }
     _applyFilters();
     notifyListeners();
@@ -193,14 +187,13 @@ class FriendsStateManager with ChangeNotifier {
     notifyListeners();
   }
 
-  /// plan_request가 변경되었을 때 호출
-  static void reset() {
-    print('🔄 FriendsStateManager 리셋');
-    _instance?._hasLoadedData = false;
-    _instance?._lastRequestDocId = null;
-    _instance?._allFriends.clear();
-    _instance?._displayFriends.clear();
-    _instance?._selectedFilters.clear();
+  /// 캐시 클리어 (plan_request 변경 시 호출)
+  static void clearCache() {
+    _cachedAllFriends.clear();
+    _cachedDisplayFriends.clear();
+    _cachedFilters.clear();
+    _cachedRequestDocId = null;
+    _hasCachedData = false;
   }
 
   @override
