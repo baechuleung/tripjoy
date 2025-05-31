@@ -391,66 +391,9 @@ class _FriendsProfileDetailState extends State<FriendsProfileDetail> {
               ),
             ),
 
-          // 이름, 나이, 성별 정보 - 터치 이벤트 무시
-          Positioned(
-            bottom: 100,
-            left: 16,
-            child: IgnorePointer(
-              child: Row(
-                children: [
-                  Text(
-                    name,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      shadows: [
-                        Shadow(
-                          offset: Offset(1, 1),
-                          blurRadius: 3,
-                          color: Colors.black45,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '$age세',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.white,
-                      shadows: [
-                        Shadow(
-                          offset: Offset(1, 1),
-                          blurRadius: 3,
-                          color: Colors.black45,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    '($gender)',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.white,
-                      shadows: [
-                        Shadow(
-                          offset: Offset(1, 1),
-                          blurRadius: 3,
-                          color: Colors.black45,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
           // 매칭 횟수 및 리뷰 - 터치 이벤트 무시
           Positioned(
-            bottom: 70,
+            bottom: 84,
             left: 16,
             child: IgnorePointer(
               child: Row(
@@ -529,6 +472,65 @@ class _FriendsProfileDetailState extends State<FriendsProfileDetail> {
             ),
           ),
 
+          // 이름, 나이, 성별 정보 - 터치 이벤트 무시
+          Positioned(
+            bottom: 54,
+            left: 16,
+            child: IgnorePointer(
+              child: Row(
+                children: [
+                  Text(
+                    name,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      shadows: [
+                        Shadow(
+                          offset: Offset(1, 1),
+                          blurRadius: 3,
+                          color: Colors.black45,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    '$age세',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      shadows: [
+                        Shadow(
+                          offset: Offset(1, 1),
+                          blurRadius: 3,
+                          color: Colors.black45,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    '($gender)',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      shadows: [
+                        Shadow(
+                          offset: Offset(1, 1),
+                          blurRadius: 3,
+                          color: Colors.black45,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
           // 언어 컨테이너 - 터치 이벤트 무시
           Positioned(
             bottom: 16,
@@ -541,39 +543,48 @@ class _FriendsProfileDetailState extends State<FriendsProfileDetail> {
                 runSpacing: 8,
                 children: _translatedLanguages.map((language) =>
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.85),
-                        borderRadius: BorderRadius.circular(16),
+                      padding: const EdgeInsets.all(5),
+                      decoration: ShapeDecoration(
+                        color: const Color(0xFFFF3E6C),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                       ),
-                      child: Text(
-                        language,
-                        style: const TextStyle(
-                          color: Color(0xFF3182F6),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            language,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
                       ),
                     )
                 ).toList(),
               )
                   : Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.85),
-                  borderRadius: BorderRadius.circular(16),
+                padding: const EdgeInsets.all(5),
+                decoration: ShapeDecoration(
+                  color: const Color(0xFFFF3E6C),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: const [
-                    Icon(Icons.language, size: 14, color: Color(0xFF009688)),
-                    SizedBox(width: 4),
                     Text(
                       '언어 정보 없음',
                       style: TextStyle(
+                        color: Colors.white,
                         fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF1A1A1A),
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
