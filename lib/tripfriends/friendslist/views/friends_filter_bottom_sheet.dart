@@ -137,7 +137,7 @@ class _FriendsFilterBottomSheetState extends State<FriendsFilterBottomSheet> {
   Widget _buildFilterOptions() {
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(15.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: FilterConstants.filterOptions.entries.map((entry) {
@@ -166,20 +166,35 @@ class _FriendsFilterBottomSheetState extends State<FriendsFilterBottomSheet> {
           children: options.map((option) {
             final isSelected = _selectedFilters[category]?.contains(option) ?? false;
 
-            return FilterChip(
-              label: Text(option),
-              selected: isSelected,
-              onSelected: (selected) => _toggleFilter(category, option, selected),
-              backgroundColor: Colors.white,
-              selectedColor: Colors.blue.shade100,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-                side: BorderSide(
-                  color: isSelected ? Colors.blue : Colors.grey.shade300,
+            return GestureDetector(
+              onTap: () => _toggleFilter(category, option, !isSelected),
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: ShapeDecoration(
+                  color: isSelected ? const Color(0xFF3182F6) : Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    side: BorderSide(
+                      color: isSelected ? const Color(0xFF3182F6) : Colors.grey.shade300,
+                    ),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      option,
+                      style: TextStyle(
+                        color: isSelected ? Colors.white : Colors.black,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              showCheckmark: false,
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
             );
           }).toList(),
         ),

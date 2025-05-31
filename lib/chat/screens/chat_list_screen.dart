@@ -153,19 +153,27 @@ class _ChatListScreenState extends State<ChatListScreen> {
                         padding: _controller.hasBlockedChats()
                             ? const EdgeInsets.only(left: 8.0)
                             : EdgeInsets.zero,
-                        child: ElevatedButton(
-                          onPressed: () => _controller.deleteSelectedChats(),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
+                        child: GestureDetector(
+                          onTap: () => _controller.deleteSelectedChats(),
+                          child: Container(
+                            height: 45,
+                            decoration: ShapeDecoration(
+                              color: const Color(0xFF3182F6),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5),
+                              ),
                             ),
-                          ),
-                          child: Text(
-                            _deleteButtonText,
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                            child: Center(
+                              child: Text(
+                                '${_selectedChatIds.length}개 채팅방 나가기',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontFamily: 'Pretendard',
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -267,18 +275,28 @@ class _ChatListScreenState extends State<ChatListScreen> {
             if (_isEditMode)
               Padding(
                 padding: const EdgeInsets.only(right: 8),
-                child: SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: Checkbox(
-                    value: isSelected,
-                    onChanged: (value) {
-                      _controller.setChatSelection(item.chatId, value == true);
-                    },
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4),
+                child: GestureDetector(
+                  onTap: () {
+                    _controller.toggleChatSelection(item.chatId);
+                  },
+                  child: Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isSelected ? const Color(0xFF237AFF) : Colors.transparent,
+                      border: Border.all(
+                        color: isSelected ? const Color(0xFF237AFF) : const Color(0xFFD9D9D9),
+                        width: 2,
+                      ),
                     ),
-                    activeColor: const Color(0xFF237AFF),
+                    child: isSelected
+                        ? const Icon(
+                      Icons.check,
+                      color: Colors.white,
+                      size: 16,
+                    )
+                        : null,
                   ),
                 ),
               ),

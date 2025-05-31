@@ -85,22 +85,22 @@ class ManualPage extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
 
               // 질문 01 - 별도 파일로 분리된 위젯 사용
               const Question01(),
 
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
 
               // 질문 02 - 별도 파일로 분리된 위젯 사용
               const Question02(),
 
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
 
               // 질문 03 - 별도 파일로 분리된 위젯 사용
               const Question03(),
 
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
 
               // 질문 04 - 새로 추가된 위젯
               const Question04(),
