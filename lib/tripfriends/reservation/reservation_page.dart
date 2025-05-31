@@ -243,10 +243,8 @@ class _ReservationPageState extends State<ReservationPage> {
     }
 
     // 확인 팝업창 표시
+    // 확인 팝업창 표시
     _reservationService.showConfirmationDialog(context, () async {
-      // 로딩 다이얼로그 표시
-      _reservationService.showLoadingDialog(context, message: '예약을 처리 중입니다...');
-
       try {
         // 필수 동의 항목 검증
         bool agreementsValid = _reservationService.validateAgreements(
@@ -256,7 +254,6 @@ class _ReservationPageState extends State<ReservationPage> {
 
         if (!agreementsValid) {
           if (context.mounted) {
-            Navigator.of(context, rootNavigator: true).pop(); // 로딩 다이얼로그 닫기
             _reservationService.showErrorDialog(context);
           }
           return;
@@ -277,9 +274,6 @@ class _ReservationPageState extends State<ReservationPage> {
 
         // 컨텍스트가 유효한지 확인
         if (context.mounted) {
-          // 로딩 다이얼로그 닫기
-          Navigator.of(context, rootNavigator: true).pop();
-
           if (isSuccess) {
             // 예약 완료 후 예약 페이지로 이동 (CurrentReservationDetail 대신)
             Navigator.pushNamedAndRemoveUntil(
@@ -302,7 +296,6 @@ class _ReservationPageState extends State<ReservationPage> {
       } catch (e) {
         print('예약 처리 중 오류: $e');
         if (context.mounted) {
-          Navigator.of(context, rootNavigator: true).pop(); // 로딩 다이얼로그 닫기
           _reservationService.showErrorDialog(context);
         }
       }
