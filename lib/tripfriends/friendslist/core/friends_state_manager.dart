@@ -9,8 +9,14 @@ import 'friends_repository.dart';
 
 /// 친구 목록의 모든 상태를 관리하는 통합 매니저
 class FriendsStateManager with ChangeNotifier {
-  // 싱글톤 제거! 매번 새로 생성
-  FriendsStateManager() {
+  // 싱글톤 인스턴스
+  static FriendsStateManager? _instance;
+  static FriendsStateManager get instance {
+    _instance ??= FriendsStateManager._();
+    return _instance!;
+  }
+
+  FriendsStateManager._() {
     _repository = FriendsRepository();
   }
 
@@ -21,13 +27,15 @@ class FriendsStateManager with ChangeNotifier {
   bool _isDisposed = false;
 
   // 상태 변수들
-  bool _isLoading = true; // 처음엔 로딩 상태
+  bool _isLoading = false; // 처음엔 로딩하지 않음
   bool _hasError = false;
   String _errorMessage = '';
+  bool _hasLoadedData = false; // 데이터 로드 여부
 
   // 위치 정보
   String? _requestCity;
   String? _requestNationality;
+  String? _lastRequestDocId; // 마지막 plan_request ID
 
   // 필터 상태
   Map<String, Set<String>> _selectedFilters = {};
@@ -50,12 +58,27 @@ class FriendsStateManager with ChangeNotifier {
     try {
       // 1. plan_request 정보 가져오기
       final requestInfo = await _repository.loadPlanRequest();
+      final newDocId = requestInfo['docId'];
+
+      // 2. 이미 로드된 데이터가 있고, 같은 plan_request라면 기존 데이터 사용
+      if (_hasLoadedData && _lastRequestDocId == newDocId) {
+        print('📍 기존 데이터 재사용');
+        yield List.from(_displayFriends);
+        return;
+      }
+
+      // 3. 새로운 plan_request거나 처음 로드하는 경우
+      _setLoading(true);
+      _allFriends.clear();
+      _displayFriends.clear();
+      _lastRequestDocId = newDocId;
+
       _requestCity = requestInfo['city'];
       _requestNationality = requestInfo['nationality'];
 
-      print('📍 위치: $_requestCity/$_requestNationality');
+      print('📍 새로운 위치: $_requestCity/$_requestNationality');
 
-      // 2. 해당 위치의 친구들 가져오기
+      // 4. 해당 위치의 친구들 가져오기
       final query = FirebaseFirestore.instance
           .collection('tripfriends_users')
           .where('location.city', isEqualTo: _requestCity)
@@ -63,7 +86,7 @@ class FriendsStateManager with ChangeNotifier {
           .where('isActive', isEqualTo: true)
           .where('isApproved', isEqualTo: true);
 
-      // 3. 모든 데이터를 먼저 수집
+      // 5. 모든 데이터를 먼저 수집
       await for (final friend in _repository.loadAllFriendsOneByOne(query)) {
         if (_isDisposed) break;
 
@@ -82,7 +105,7 @@ class FriendsStateManager with ChangeNotifier {
         _allFriends.add(friend);
       }
 
-      // 4. 모든 데이터 로드 완료 후 처리
+      // 6. 모든 데이터 로드 완료 후 처리
       if (!_isDisposed) {
         // 랜덤 정렬
         _shuffleFriends();
@@ -90,7 +113,8 @@ class FriendsStateManager with ChangeNotifier {
         // 필터 적용
         _applyFilters();
 
-        // 로딩 완료
+        // 로딩 완료 및 상태 저장
+        _hasLoadedData = true;
         _setLoading(false);
 
         // 결과 반환
@@ -167,6 +191,16 @@ class FriendsStateManager with ChangeNotifier {
     _hasError = true;
     _errorMessage = message;
     notifyListeners();
+  }
+
+  /// plan_request가 변경되었을 때 호출
+  static void reset() {
+    print('🔄 FriendsStateManager 리셋');
+    _instance?._hasLoadedData = false;
+    _instance?._lastRequestDocId = null;
+    _instance?._allFriends.clear();
+    _instance?._displayFriends.clear();
+    _instance?._selectedFilters.clear();
   }
 
   @override

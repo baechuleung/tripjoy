@@ -23,12 +23,13 @@ class FriendsListView extends StatefulWidget {
 }
 
 class _FriendsListViewState extends State<FriendsListView> {
-  FriendsStateManager? _manager;
+  late final FriendsStateManager _manager;
   StreamSubscription? _streamSubscription;
 
   @override
   void initState() {
     super.initState();
+    _manager = FriendsStateManager.instance; // 싱글톤 사용
     _loadData();
   }
 
@@ -44,15 +45,11 @@ class _FriendsListViewState extends State<FriendsListView> {
   void _loadData() {
     print('🔄 FriendsListView: 데이터 로드 시작');
 
-    // 기존 정리
+    // 기존 스트림 정리
     _streamSubscription?.cancel();
-    _manager?.dispose();
-
-    // 새로 생성 - 매번 새로!
-    _manager = FriendsStateManager();
 
     // 스트림 시작
-    _streamSubscription = _manager!.loadFriendsStream().listen(
+    _streamSubscription = _manager.loadFriendsStream().listen(
           (friends) {
         if (mounted) {
           setState(() {});
@@ -63,13 +60,11 @@ class _FriendsListViewState extends State<FriendsListView> {
   }
 
   void _showFilterBottomSheet() {
-    if (_manager == null) return;
-
     FriendsFilterBottomSheet.show(
       context,
-      currentFilters: _manager!.selectedFilters,
+      currentFilters: _manager.selectedFilters,
       onFiltersApplied: (filters) {
-        _manager!.applyFilters(filters);
+        _manager.applyFilters(filters);
       },
     );
   }
@@ -86,18 +81,14 @@ class _FriendsListViewState extends State<FriendsListView> {
   @override
   void dispose() {
     _streamSubscription?.cancel();
-    _manager?.dispose();
+    // manager는 dispose하지 않음 (싱글톤이므로)
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_manager == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
     return ChangeNotifierProvider.value(
-      value: _manager!,
+      value: _manager,
       child: Consumer<FriendsStateManager>(
         builder: (context, manager, _) {
           return Container(
@@ -218,22 +209,6 @@ class _FriendsListViewState extends State<FriendsListView> {
         height: 1,
         thickness: 1,
         color: Color(0xFFE4E4E4),
-      ),
-    );
-  }
-
-  Widget _buildLoadingIndicator() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(vertical: 16.0),
-      child: Center(
-        child: SizedBox(
-          width: 24,
-          height: 24,
-          child: CircularProgressIndicator(
-            strokeWidth: 2,
-            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF3182F6)),
-          ),
-        ),
       ),
     );
   }
