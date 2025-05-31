@@ -182,7 +182,7 @@ class _PlanRequestViewState extends State<PlanRequestView> {
         width: double.infinity,
         height: 50,
         decoration: ShapeDecoration(
-          color: Color(0xFF738EFF),
+          color: Color(0xFF5963D0),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),

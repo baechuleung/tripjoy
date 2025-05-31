@@ -12,6 +12,7 @@ import 'user_faq_list.dart';
 import 'setting/setting.dart';
 import 'mypage/review/review_page.dart';
 import 'mypage/reservation/reservation_page.dart';
+import 'customer/customer_service_page.dart';
 
 class UserDrawer extends StatefulWidget {
   @override
@@ -347,6 +348,25 @@ class _UserDrawerState extends State<UserDrawer> {
                             children: [
                               Text(
                                 '이용불편사항신고',
+                                style: TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.w600),
+                              ),
+                              Icon(Icons.arrow_forward_ios, color: Color(0xFF999999), size: 16),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 15),
+                        Divider(color: Color(0xFFF1F1F1)),
+                        SizedBox(height: 15),
+                        // 고객센터 - 새로 추가
+                        InkWell(
+                          onTap: () {
+                            Navigator.of(context).push(MaterialPageRoute(builder: (context) => CustomerServicePage()));
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '고객센터',
                                 style: TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.w600),
                               ),
                               Icon(Icons.arrow_forward_ios, color: Color(0xFF999999), size: 16),
