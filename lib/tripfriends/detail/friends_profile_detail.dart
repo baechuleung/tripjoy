@@ -398,40 +398,11 @@ class _FriendsProfileDetailState extends State<FriendsProfileDetail> {
             child: IgnorePointer(
               child: Row(
                 children: [
-                  // 매칭 횟수
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.people,
-                        size: 16,
-                        color: Colors.white,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        _numberFormat.format(_friendsCount),
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          shadows: [
-                            Shadow(
-                              offset: Offset(1, 1),
-                              blurRadius: 3,
-                              color: Colors.black45,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(width: 16),
-
                   // 별점 및 리뷰 수
                   Row(
                     children: [
                       const Icon(
-                        Icons.star,
+                        Icons.star_rounded,
                         size: 16,
                         color: Colors.yellow,
                       ),
@@ -455,6 +426,35 @@ class _FriendsProfileDetailState extends State<FriendsProfileDetail> {
                         ' (${_numberFormat.format(_reviewCount)})',
                         style: const TextStyle(
                           fontSize: 14,
+                          color: Colors.white,
+                          shadows: [
+                            Shadow(
+                              offset: Offset(1, 1),
+                              blurRadius: 3,
+                              color: Colors.black45,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(width: 16),
+
+                  // 매칭 횟수
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.people,
+                        size: 16,
+                        color: Colors.white,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        _numberFormat.format(_friendsCount),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
                           color: Colors.white,
                           shadows: [
                             Shadow(

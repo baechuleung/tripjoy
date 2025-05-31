@@ -190,18 +190,37 @@ class _FriendsIntroductionState extends State<FriendsIntroduction> {
               if (!_isLoading)
                 GestureDetector(
                   onTap: _isTranslating ? null : _translateText,
-                  child: Text(
-                    _isTranslated ? '원문 보기' : '번역하기',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: _isTranslating
-                          ? Color(0xFFBBBBBB)
-                          : Color(0xFF237AFF),
-                      decoration: TextDecoration.underline,
-                      decorationColor: _isTranslating
-                          ? Color(0xFFBBBBBB)
-                          : Color(0xFF237AFF),
+                  child: Container(
+                    height: 35,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: ShapeDecoration(
+                      color: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(
+                          width: 1,
+                          color: const Color(0xFFEDEDED),
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    child: Center(
+                      child: ShaderMask(
+                        shaderCallback: (bounds) => LinearGradient(
+                          colors: _isTranslating
+                              ? [const Color(0xFFBBBBBB), const Color(0xFFBBBBBB)]
+                              : [const Color(0xFFFF3E6C), const Color(0xFF5963D0)],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ).createShader(bounds),
+                        child: Text(
+                          _isTranslated ? '원문보기' : '번역하기',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),

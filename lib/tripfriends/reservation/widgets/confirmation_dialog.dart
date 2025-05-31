@@ -21,9 +21,9 @@ class ConfirmationDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: 20.0),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 40.0),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16.0),
+        borderRadius: BorderRadius.circular(20.0),
       ),
       elevation: 0,
       backgroundColor: Colors.transparent,
@@ -37,12 +37,12 @@ class ConfirmationDialog extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         shape: BoxShape.rectangle,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x29000000),
-            offset: Offset(0, 3),
-            blurRadius: 10,
+            color: Color(0x1A000000),
+            offset: Offset(0, 2),
+            blurRadius: 20,
           ),
         ],
       ),
@@ -51,113 +51,95 @@ class ConfirmationDialog extends StatelessWidget {
         children: [
           // 타이틀 섹션
           Container(
-            padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+            padding: const EdgeInsets.only(top: 32, bottom: 16),
             width: double.infinity,
-            child: Row(
-              children: [
-                Icon(
-                  Icons.info_outline,
-                  color: const Color(0xFF237AFF),
-                  size: 22,
+            child: Center(
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1A1A1A),
                 ),
-                const SizedBox(width: 10),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF333333),
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-
-          // 구분선
-          const Divider(
-            height: 1,
-            thickness: 1,
-            color: Color(0xFFEEEEEE),
           ),
 
           // 내용 섹션
           Container(
-            padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+            padding: const EdgeInsets.symmetric(horizontal: 24),
             width: double.infinity,
-            child: Text(
-              content,
-              style: const TextStyle(
-                fontSize: 15,
-                color: Color(0xFF666666),
-                height: 1.4,
+            child: Center(
+              child: Text(
+                content,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 15,
+                  color: Color(0xFF666666),
+                  height: 1.5,
+                  fontWeight: FontWeight.w400,
+                ),
               ),
             ),
           ),
 
+          const SizedBox(height: 12),
+
           // 버튼 섹션
           Container(
-            decoration: const BoxDecoration(
-              color: Color(0xFFF9F9F9),
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(16),
-                bottomRight: Radius.circular(16),
-              ),
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             child: Row(
               children: [
-                // 취소 버튼이 있는 경우에만 표시
+                // 취소 버튼
                 if (cancelText.isNotEmpty)
                   Expanded(
-                    child: TextButton(
-                      onPressed: onCancel,
-                      style: TextButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(16),
+                    child: Container(
+                      height: 48,
+                      margin: const EdgeInsets.only(right: 8),
+                      child: TextButton(
+                        onPressed: onCancel,
+                        style: TextButton.styleFrom(
+                          backgroundColor: const Color(0xFFF5F5F5),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          cancelText,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            color: Color(0xFF666666),
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
-                      child: Text(
-                        cancelText,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          color: Color(0xFF888888),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
                     ),
-                  ),
-
-                // 취소 버튼이 있는 경우에만 구분선 표시
-                if (cancelText.isNotEmpty)
-                  Container(
-                    width: 1,
-                    height: 52,
-                    color: const Color(0xFFEEEEEE),
                   ),
 
                 // 확인 버튼
                 Expanded(
-                  child: TextButton(
-                    onPressed: onConfirm,
-                    style: TextButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.only(
-                          bottomRight: Radius.circular(16),
-                          bottomLeft: cancelText.isEmpty ? Radius.circular(16) : Radius.zero,
+                  child: Container(
+                    height: 48,
+                    margin: cancelText.isNotEmpty
+                        ? const EdgeInsets.only(left: 8)
+                        : EdgeInsets.zero,
+                    child: TextButton(
+                      onPressed: onConfirm,
+                      style: TextButton.styleFrom(
+                        backgroundColor: const Color(0xFFE8F0FF),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                    ),
-                    child: Text(
-                      confirmText,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        color: Color(0xFF237AFF),
-                        fontWeight: FontWeight.w700,
+                      child: Text(
+                        confirmText,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          color: Color(0xFF237AFF),
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                   ),

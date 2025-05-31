@@ -51,6 +51,44 @@ class AgreementCheckboxWidgetState extends State<AgreementCheckboxWidget> {
   bool get isProhibitionAgreed => _isProhibitionAgreed;
   bool get isReviewAgreed => _isReviewAgreed;
 
+  // 커스텀 체크박스 위젯 생성
+  Widget _buildCustomCheckbox(bool isChecked, Function(bool?) onChanged) {
+    return GestureDetector(
+      onTap: () => onChanged(!isChecked),
+      child: Container(
+        width: 20,
+        height: 20,
+        decoration: BoxDecoration(
+          color: isChecked ? const Color(0xFF237AFF) : Colors.white,
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(
+            color: isChecked ? const Color(0xFF237AFF) : const Color(0xFFE0E0E0),
+            width: 1.5,
+          ),
+        ),
+        child: Icon(
+          Icons.check,
+          size: 14,
+          color: isChecked ? Colors.white : const Color(0xFFE4E4E4),
+        ),
+      ),
+    );
+  }
+
+  // 하위 체크박스용 심플한 체크 아이콘
+  Widget _buildSimpleCheck(bool isChecked) {
+    return Container(
+      width: 24,
+      height: 24,
+      alignment: Alignment.center,
+      child: Icon(
+        Icons.check,
+        size: 20,
+        color: isChecked ? const Color(0xFF237AFF) : const Color(0xFFE4E4E4),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -74,20 +112,17 @@ class AgreementCheckboxWidgetState extends State<AgreementCheckboxWidget> {
             thickness: 1,
             color: Color(0xFFEEEEEE),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 12),
 
           // 전체 동의 항목
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(
-                width: 48,
-                child: Checkbox(
-                  value: _isAllChecked,
-                  onChanged: _handleAllChecked,
-                  activeColor: const Color(0xFFFF5252),
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
+              Container(
+                width: 40,
+                height: 40,
+                alignment: Alignment.center,
+                child: _buildCustomCheckbox(_isAllChecked, _handleAllChecked),
               ),
               const Text(
                 '전체 동의합니다.',
@@ -99,8 +134,7 @@ class AgreementCheckboxWidgetState extends State<AgreementCheckboxWidget> {
               ),
             ],
           ),
-          // 전체 동의 아래 구분선 삭제됨
-          const SizedBox(height: 4), // 여백 줄임
+          const SizedBox(height: 12), // 여백
 
           // 필수 항목 1: 현장결제 안내 동의
           GestureDetector(
@@ -116,18 +150,15 @@ class AgreementCheckboxWidgetState extends State<AgreementCheckboxWidget> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(
-                  width: 48,
-                  child: Checkbox(
-                    value: _isPaymentAgreed,
-                    onChanged: (value) {
+                  width: 40,
+                  child: GestureDetector(
+                    onTap: () {
                       setState(() {
-                        _isPaymentAgreed = value ?? false;
+                        _isPaymentAgreed = !_isPaymentAgreed;
                         _updateAllChecked();
                       });
                     },
-                    activeColor: const Color(0xFFFF5252),
-                    visualDensity: VisualDensity.compact, // 체크박스 크기 줄임
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    child: _buildSimpleCheck(_isPaymentAgreed),
                   ),
                 ),
                 const Text(
@@ -140,6 +171,8 @@ class AgreementCheckboxWidgetState extends State<AgreementCheckboxWidget> {
               ],
             ),
           ),
+          const SizedBox(height: 8),
+
           // 필수 항목 2: 금지 행위 안내 동의
           GestureDetector(
             onTap: () {
@@ -154,18 +187,15 @@ class AgreementCheckboxWidgetState extends State<AgreementCheckboxWidget> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(
-                  width: 48,
-                  child: Checkbox(
-                    value: _isProhibitionAgreed,
-                    onChanged: (value) {
+                  width: 40,
+                  child: GestureDetector(
+                    onTap: () {
                       setState(() {
-                        _isProhibitionAgreed = value ?? false;
+                        _isProhibitionAgreed = !_isProhibitionAgreed;
                         _updateAllChecked();
                       });
                     },
-                    activeColor: const Color(0xFFFF5252),
-                    visualDensity: VisualDensity.compact, // 체크박스 크기 줄임
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    child: _buildSimpleCheck(_isProhibitionAgreed),
                   ),
                 ),
                 const Text(
@@ -178,6 +208,8 @@ class AgreementCheckboxWidgetState extends State<AgreementCheckboxWidget> {
               ],
             ),
           ),
+          const SizedBox(height: 8),
+
           // 선택 항목: 프렌즈 이용 후 리뷰약속 동의
           GestureDetector(
             onTap: () {
@@ -191,17 +223,14 @@ class AgreementCheckboxWidgetState extends State<AgreementCheckboxWidget> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(
-                  width: 48,
-                  child: Checkbox(
-                    value: _isReviewAgreed,
-                    onChanged: (value) {
+                  width: 40,
+                  child: GestureDetector(
+                    onTap: () {
                       setState(() {
-                        _isReviewAgreed = value ?? false;
+                        _isReviewAgreed = !_isReviewAgreed;
                       });
                     },
-                    activeColor: const Color(0xFFFF5252),
-                    visualDensity: VisualDensity.compact, // 체크박스 크기 줄임
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    child: _buildSimpleCheck(_isReviewAgreed),
                   ),
                 ),
                 const Text(
