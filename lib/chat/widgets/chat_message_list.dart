@@ -30,14 +30,14 @@ class ChatMessageList extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.chat_bubble_outline, size: 48, color: Colors.grey),
+            const Icon(Icons.maps_ugc, size: 48, color: Colors.grey),
             const SizedBox(height: 16),
             const Text(
               '프렌즈와의 대화가 여기에 표시됩니다.\n메시지를 보내 대화를 시작해보세요!',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.grey,
-                fontSize: 16,
+                color: const Color(0xFFC2C2C2),
+                fontSize: 14,
               ),
             ),
           ],

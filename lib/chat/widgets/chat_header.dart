@@ -110,7 +110,7 @@ class ChatHeader extends StatelessWidget implements PreferredSizeWidget {
                 const Text(
                   '프렌즈',
                   style: TextStyle(
-                    color: Colors.green,
+                    color: const Color(0xFF3182F6),
                     fontSize: 12,
                   ),
                 ),

@@ -363,7 +363,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                           height: 50, // 두 줄 높이에 맞춤
                           margin: const EdgeInsets.only(left: 8),
                           child: Material(
-                            color: Colors.red, // 빨간색 배경
+                            color: const Color(0xFFE4E4E4), // 회색 배경
                             borderRadius: BorderRadius.circular(8),
                             child: InkWell(
                               onTap: () {
@@ -374,7 +374,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                                 child: Text(
                                   '차단해제',
                                   style: TextStyle(
-                                    color: Colors.white, // 흰색 글자
+                                    color: const Color(0xFF4E5968), // 회색 배경
                                     fontSize: 13,
                                     fontWeight: FontWeight.w500,
                                   ),
