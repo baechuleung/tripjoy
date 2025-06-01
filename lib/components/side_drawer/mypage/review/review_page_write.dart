@@ -157,7 +157,6 @@ class _ReviewPageWriteState extends State<ReviewPageWrite> {
 
     // 선택된 경우 색상 설정
     Color selectedColor = isBadPoint ? Color(0xFFFFF0F0) : Color(0xFFEAF2FF); // 배경색
-    Color selectedBorderColor = isBadPoint ? Color(0xFFFF3B30) : Color(0xFF3182F6); // 테두리색
     Color selectedTextColor = isBadPoint ? Color(0xFFFF3B30) : Color(0xFF3182F6); // 텍스트색
 
     return GestureDetector(
@@ -168,8 +167,8 @@ class _ReviewPageWriteState extends State<ReviewPageWrite> {
         decoration: BoxDecoration(
           color: isSelected ? selectedColor : Colors.white,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? selectedBorderColor : Color(0xFFDDDDDD),
+          border: isSelected ? null : Border.all(
+            color: Color(0xFFDDDDDD),
             width: 1,
           ),
         ),
@@ -252,7 +251,7 @@ class _ReviewPageWriteState extends State<ReviewPageWrite> {
                           child: Padding(
                             padding: EdgeInsets.symmetric(horizontal: 8),
                             child: Icon(
-                              index < _rating ? Icons.star : Icons.star_border,
+                              index < _rating ? Icons.star_rounded : Icons.star_border_rounded,
                               color: index < _rating ? Colors.amber : Colors.grey[300],
                               size: 40,
                             ),

@@ -50,7 +50,10 @@ class _OneLineReviewState extends State<OneLineReview> {
                 fontSize: 14,
               ),
               filled: true,
-              fillColor: Color(0xFFF9F9F9),
+              fillColor: Colors.white,
+              counterStyle: TextStyle(
+                color: Color(0xFF3182F6),
+              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide(

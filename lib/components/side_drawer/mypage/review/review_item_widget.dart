@@ -186,7 +186,7 @@ class _ReviewItemWidgetState extends State<ReviewItemWidget> {
                     children: List.generate(
                       5,
                           (index) => Icon(
-                        Icons.star,
+                        Icons.star_rounded,
                         color: index < (widget.review['rating'] ?? 0)
                             ? Colors.amber
                             : Colors.grey[300],
@@ -382,7 +382,7 @@ class _ReviewItemWidgetState extends State<ReviewItemWidget> {
                     Row(
                       children: [
                         // 별점 표시
-                        Icon(Icons.star, size: 14, color: Color(0xFFFFD233)),
+                        Icon(Icons.star_rounded, size: 14, color: Color(0xFFFFD233)),
                         SizedBox(width: 2),
                         Text(
                           '$averageRating/5',

@@ -106,44 +106,60 @@ class _ComplaintPageState extends State<ComplaintPage> {
               children: [
                 Text(
                   '트립조이에 대한 불편하신 사항을 남겨주세요!',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 10),
 
                 // 체크박스 목록 (왼쪽 여백 제거 및 위아래 간격 추가)
+                // 체크박스 목록 (왼쪽 여백 제거 및 위아래 간격 추가)
                 Column(
                   children: _complaintTypes.map((type) {
+                    final isSelected = _selectedComplaintTypes.contains(type);
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 15.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Transform.scale(
-                            scale: 0.9,
-                            child: Checkbox(
-                              visualDensity: VisualDensity(horizontal: -4.0, vertical: -4.0),
-                              side: BorderSide(width: 1.0, color: Colors.grey),
-                              value: _selectedComplaintTypes.contains(type),
-                              onChanged: (bool? value) {
-                                setState(() {
-                                  if (value == true) {
-                                    _selectedComplaintTypes.add(type);
-                                  } else {
-                                    _selectedComplaintTypes.remove(type);
-                                  }
-                                });
-                              },
-                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            if (isSelected) {
+                              _selectedComplaintTypes.remove(type);
+                            } else {
+                              _selectedComplaintTypes.add(type);
+                            }
+                          });
+                        },
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 20,
+                              height: 20,
+                              decoration: ShapeDecoration(
+                                color: isSelected ? const Color(0xFF3182F6) : Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                  side: BorderSide(
+                                    color: isSelected ? const Color(0xFF3182F6) : Colors.grey,
+                                    width: 1.0,
+                                  ),
+                                ),
+                              ),
+                              child: isSelected
+                                  ? Icon(
+                                Icons.check,
+                                size: 14,
+                                color: Colors.white,
+                              )
+                                  : null,
                             ),
-                          ),
-                          SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              type,
-                              style: TextStyle(fontSize: 16),
+                            SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                type,
+                                style: TextStyle(fontSize: 16),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     );
                   }).toList(),
@@ -153,7 +169,7 @@ class _ComplaintPageState extends State<ComplaintPage> {
 
                 Text(
                   '상세 내용',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 10),
 

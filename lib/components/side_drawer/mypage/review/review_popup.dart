@@ -20,15 +20,15 @@ class ReviewPopup {
                 SizedBox(height: 16),
                 // 체크 아이콘
                 Container(
-                  width: 64,
-                  height: 64,
+                  width: 40,
+                  height: 40,
                   decoration: BoxDecoration(
                     color: Color(0xFF4285F4), // 파란색 배경
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.check,
-                    size: 36,
+                    size: 24,
                     color: Colors.white,
                   ),
                 ),
@@ -37,7 +37,7 @@ class ReviewPopup {
                 Text(
                   message,
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
                   textAlign: TextAlign.center,

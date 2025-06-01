@@ -4,6 +4,7 @@ class ComplaintCaution extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
       ),
@@ -53,17 +54,29 @@ class ComplaintCaution extends StatelessWidget {
                 '• 신고 내용에 개인 연락처 등 개인정보를 입력하지 않도록 주의해주세요.',
               ),
             ),
-            Divider(color: Color(0xFFD9D9D9), thickness: 1),
-            Center(
-              child: TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text(
-                  '네, 확인했습니다',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Color(0xFF007CFF),
+            SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF3182F6),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: Text(
+                    '네, 확인했습니다',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
