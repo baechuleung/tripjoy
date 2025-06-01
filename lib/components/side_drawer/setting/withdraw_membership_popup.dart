@@ -124,28 +124,125 @@ class _WithdrawMembershipPopupState extends State<WithdrawMembershipPopup> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text('정말 탈퇴하시겠어요?'),
-      content: _isLoading
-          ? Container(
-        height: 50,
-        child: Center(child: CircularProgressIndicator()),
-      )
-          : Text('탈퇴하시게 되면 작성하신 정보들이 모두 삭제됩니다.'),
-      actions: _isLoading
-          ? []
-          : [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text('취소', style: TextStyle(color: Colors.black)),
+    return Dialog(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Container(
+        padding: EdgeInsets.all(24),
+        width: MediaQuery.of(context).size.width * 0.85,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '탈퇴를 진행 하시겠어요?',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: Colors.black,
+              ),
+            ),
+            SizedBox(height: 16),
+            if (_isLoading)
+              Container(
+                height: 100,
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '아직 참게하지 못한 여행이 더 많아요.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF666666),
+                      height: 1.5,
+                    ),
+                  ),
+                  Text(
+                    '잠시 쉬어가고 싶다면, 언제든 돌아오실수 있어요.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF666666),
+                      height: 1.5,
+                    ),
+                  ),
+                  Text(
+                    '불편한 점이 있다면 [고객센터]로 말씀해주세요.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF666666),
+                      height: 1.5,
+                    ),
+                  ),
+                  Text(
+                    '더 나은 서비스로 찾아뵙겠습니다.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF666666),
+                      height: 1.5,
+                    ),
+                  ),
+                ],
+              ),
+            SizedBox(height: 24),
+            if (!_isLoading)
+              Row(
+                children: [
+                  SizedBox(
+                    width: 80,
+                    height: 48,
+                    child: TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: TextButton.styleFrom(
+                        backgroundColor: Color(0xFFE8E8E8),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        '취소',
+                        style: TextStyle(
+                          color: Color(0xFF666666),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: SizedBox(
+                      height: 48,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          await _deleteUserAccount(context);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFF3B82F6),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          '그래도 탈퇴할래요',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+          ],
         ),
-        TextButton(
-          onPressed: () async {
-            await _deleteUserAccount(context);
-          },
-          child: Text('탈퇴하기', style: TextStyle(color: Colors.red)),
-        ),
-      ],
+      ),
     );
   }
 }
