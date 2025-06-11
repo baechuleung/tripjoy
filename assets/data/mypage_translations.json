@@ -1,0 +1,112 @@
+{
+  "translations": {
+    "approval_complete": {
+      "KR": "승인 완료",
+      "JP": "承認完了",
+      "VN": "Phê duyệt hoàn tất",
+      "TH": "อนุมัติเรียบร้อย",
+      "TW": "批准完成",
+      "CN": "批准完成",
+      "HK": "批准完成",
+      "PH": "Approval Complete",
+      "GU": "Approval Complete",
+      "SG": "Approval Complete"
+    },
+    "approval_waiting": {
+      "KR": "승인 대기중",
+      "JP": "承認待ち",
+      "VN": "Đang chờ phê duyệt",
+      "TH": "รอการอนุมัติ",
+      "TW": "等待批准",
+      "CN": "等待批准",
+      "HK": "等待批准",
+      "PH": "Approval Waiting",
+      "GU": "Approval Waiting",
+      "SG": "Approval Waiting"
+    },
+    "my_profile": {
+      "KR": "나의 프로필",
+      "JP": "マイプロフィール",
+      "VN": "Hồ sơ của tôi",
+      "TH": "โปรไฟล์ของฉัน",
+      "TW": "我的個人資料",
+      "CN": "我的个人资料",
+      "HK": "我的個人資料",
+      "PH": "My Profile",
+      "GU": "My Profile",
+      "SG": "My Profile"
+    },
+    "edit": {
+      "KR": "수정하기",
+      "JP": "編集する",
+      "VN": "Chỉnh sửa",
+      "TH": "แก้ไข",
+      "TW": "編輯",
+      "CN": "编辑",
+      "HK": "編輯",
+      "PH": "Edit",
+      "GU": "Edit",
+      "SG": "Edit"
+    },
+    "service_types": {
+      "KR": "분야",
+      "JP": "分野",
+      "VN": "Lĩnh vực",
+      "TH": "สาขา",
+      "TW": "領域",
+      "CN": "领域",
+      "HK": "領域",
+      "PH": "Field",
+      "GU": "Field",
+      "SG": "Field"
+    },
+    "additional_info": {
+      "KR": "추가정보",
+      "JP": "追加情報",
+      "VN": "Thông tin bổ sung",
+      "TH": "ข้อมูลเพิ่มเติม",
+      "TW": "附加信息",
+      "CN": "附加信息",
+      "HK": "附加信息",
+      "PH": "Additional Information",
+      "GU": "Additional Information",
+      "SG": "Additional Information"
+    },
+    "price": {
+      "KR": "서비스 금액",
+      "JP": "サービス料金",
+      "VN": "Giá dịch vụ",
+      "TH": "ค่าบริการ",
+      "TW": "服務費用",
+      "CN": "服务费用",
+      "HK": "服務費用",
+      "PH": "Service Fee",
+      "GU": "Service Fee",
+      "SG": "Service Fee"
+    },
+    "total": {
+      "KR": "총",
+      "JP": "合計",
+      "VN": "Tổng",
+      "TH": "ทั้งหมด",
+      "TW": "總計",
+      "CN": "总计",
+      "HK": "總計",
+      "PH": "Total",
+      "GU": "Total",
+      "SG": "Total"
+    },
+    "people_unit": {
+      "KR": "명",
+      "JP": "名",
+      "VN": "người",
+      "TH": "คน",
+      "TW": "人",
+      "CN": "人",
+      "HK": "人",
+      "PH": "people",
+      "GU": "people",
+      "SG": "people"
+    }
+  }
+}

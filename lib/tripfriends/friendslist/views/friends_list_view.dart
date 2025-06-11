@@ -51,6 +51,11 @@ class _FriendsListViewState extends State<FriendsListView> {
     // 새로 생성 - 매번 새로!
     _manager = FriendsStateManager();
 
+    // 먼저 UI 갱신하여 이전 데이터가 표시되지 않도록 함
+    if (mounted) {
+      setState(() {});
+    }
+
     // 스트림 시작
     _streamSubscription = _manager!.loadFriendsStream().listen(
           (friends) {

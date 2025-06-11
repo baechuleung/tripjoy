@@ -9,15 +9,17 @@ import 'friends_repository.dart';
 
 /// 친구 목록의 모든 상태를 관리하는 통합 매니저
 class FriendsStateManager with ChangeNotifier {
-  // 정적 변수로 데이터 저장 (페이지 이동해도 유지)
-  static List<Map<String, dynamic>> _cachedAllFriends = [];
-  static List<Map<String, dynamic>> _cachedDisplayFriends = [];
-  static Map<String, Set<String>> _cachedFilters = {};
-  static String? _cachedRequestDocId;
-  static bool _hasCachedData = false;
+  // 인스턴스 변수로 변경 (정적 변수 제거)
+  List<Map<String, dynamic>> _allFriends = [];
+  List<Map<String, dynamic>> _displayFriends = [];
+  Map<String, Set<String>> _selectedFilters = {};
+  String? _currentRequestDocId;
+  bool _hasData = false;
 
   FriendsStateManager() {
     _repository = FriendsRepository();
+    // 생성자에서 즉시 로딩 상태로 설정
+    _isLoading = true;
   }
 
   // 의존성
@@ -27,7 +29,7 @@ class FriendsStateManager with ChangeNotifier {
   bool _isDisposed = false;
 
   // 상태 변수들
-  bool _isLoading = false;
+  bool _isLoading = true;  // 초기값을 true로 변경
   bool _hasError = false;
   String _errorMessage = '';
 
@@ -36,17 +38,17 @@ class FriendsStateManager with ChangeNotifier {
   String? _requestNationality;
 
   // 필터 상태
-  Map<String, Set<String>> get selectedFilters => _cachedFilters;
+  Map<String, Set<String>> get selectedFilters => _selectedFilters;
 
   // 데이터
-  List<Map<String, dynamic>> get displayFriends => _cachedDisplayFriends;
+  List<Map<String, dynamic>> get displayFriends => _displayFriends;
 
   // Getters
   bool get isLoading => _isLoading;
   bool get hasError => _hasError;
   String get errorMessage => _errorMessage;
 
-  /// 친구 데이터 스트림으로 로드 - 단순하게!
+  /// 친구 데이터 스트림으로 로드
   Stream<List<Map<String, dynamic>>> loadFriendsStream() async* {
     print('📍 loadFriendsStream 시작');
 
@@ -55,18 +57,17 @@ class FriendsStateManager with ChangeNotifier {
       final requestInfo = await _repository.loadPlanRequest();
       final newDocId = requestInfo['docId'];
 
-      // 2. 캐시된 데이터가 있고 같은 plan_request면 바로 반환
-      if (_hasCachedData && _cachedRequestDocId == newDocId && _cachedAllFriends.isNotEmpty) {
-        print('📍 캐시된 데이터 사용');
-        yield List.from(_cachedDisplayFriends);
-        return;
+      // 2. 새로운 요청이면 데이터 클리어
+      if (_currentRequestDocId != newDocId) {
+        print('📍 새로운 plan_request - 데이터 클리어');
+        _allFriends.clear();
+        _displayFriends.clear();
+        _hasData = false;
+        _currentRequestDocId = newDocId;
       }
 
-      // 3. 새로운 데이터 로드
+      // 3. 로딩 상태 유지
       _setLoading(true);
-      _cachedAllFriends.clear();
-      _cachedDisplayFriends.clear();
-      _cachedRequestDocId = newDocId;
 
       _requestCity = requestInfo['city'];
       _requestNationality = requestInfo['nationality'];
@@ -97,7 +98,7 @@ class FriendsStateManager with ChangeNotifier {
         }
 
         // 데이터 추가
-        _cachedAllFriends.add(friend);
+        _allFriends.add(friend);
       }
 
       // 6. 모든 데이터 로드 완료 후 처리
@@ -109,11 +110,11 @@ class FriendsStateManager with ChangeNotifier {
         _applyFilters();
 
         // 로딩 완료
-        _hasCachedData = true;
+        _hasData = true;
         _setLoading(false);
 
         // 결과 반환
-        yield List.from(_cachedDisplayFriends);
+        yield List.from(_displayFriends);
       }
 
     } catch (e) {
@@ -128,35 +129,35 @@ class FriendsStateManager with ChangeNotifier {
 
   /// 친구 목록 랜덤 정렬
   void _shuffleFriends() {
-    if (_cachedAllFriends.isEmpty) return;
+    if (_allFriends.isEmpty) return;
 
     final random = Random();
-    _cachedAllFriends.shuffle(random);
-    print('🎲 친구 목록 랜덤 정렬 완료 - ${_cachedAllFriends.length}명');
+    _allFriends.shuffle(random);
+    print('🎲 친구 목록 랜덤 정렬 완료 - ${_allFriends.length}명');
   }
 
-  /// 필터 적용 - 단순하게!
+  /// 필터 적용
   void _applyFilters() {
     // 필터가 없으면 전체 표시
-    if (_cachedFilters.isEmpty) {
-      _cachedDisplayFriends = List.from(_cachedAllFriends);
+    if (_selectedFilters.isEmpty) {
+      _displayFriends = List.from(_allFriends);
       return;
     }
 
     // 필터 적용
-    _cachedDisplayFriends = FilterHandler.applyFilters(_cachedAllFriends, _cachedFilters);
+    _displayFriends = FilterHandler.applyFilters(_allFriends, _selectedFilters);
 
     // 정렬 적용
-    final sortType = FilterHandler.getSortTypeFromFilters(_cachedFilters);
+    final sortType = FilterHandler.getSortTypeFromFilters(_selectedFilters);
     if (sortType != 'none') {
-      _cachedDisplayFriends = FilterHandler.sortFriends(_cachedDisplayFriends, sortType);
+      _displayFriends = FilterHandler.sortFriends(_displayFriends, sortType);
     }
   }
 
   /// 필터 적용
   void applyFilters(Map<String, Set<String>> filters) {
     if (_isDisposed) return;
-    _cachedFilters = Map.from(filters);
+    _selectedFilters = Map.from(filters);
     _applyFilters();
     notifyListeners();
   }
@@ -164,9 +165,9 @@ class FriendsStateManager with ChangeNotifier {
   /// 필터 제거
   void removeFilter(String category, String option) {
     if (_isDisposed) return;
-    _cachedFilters[category]?.remove(option);
-    if (_cachedFilters[category]?.isEmpty ?? false) {
-      _cachedFilters.remove(category);
+    _selectedFilters[category]?.remove(option);
+    if (_selectedFilters[category]?.isEmpty ?? false) {
+      _selectedFilters.remove(category);
     }
     _applyFilters();
     notifyListeners();
@@ -185,15 +186,6 @@ class FriendsStateManager with ChangeNotifier {
     _hasError = true;
     _errorMessage = message;
     notifyListeners();
-  }
-
-  /// 캐시 클리어 (plan_request 변경 시 호출)
-  static void clearCache() {
-    _cachedAllFriends.clear();
-    _cachedDisplayFriends.clear();
-    _cachedFilters.clear();
-    _cachedRequestDocId = null;
-    _hasCachedData = false;
   }
 
   @override

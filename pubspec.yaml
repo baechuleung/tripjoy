@@ -1,0 +1,133 @@
+name: tripjoy
+description: "tripjoy app."
+publish_to: 'none'
+
+version: 1.0.7+24
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  matrix4_transform: ^3.0.1
+  cupertino_icons: ^1.0.8
+  geolocator: ^13.0.2
+  uuid: ^4.5.1
+  geocoding: ^3.0.0
+  webview_flutter: ^4.10.0
+  url_launcher: ^6.3.0
+  camera: ^0.10.5+9  # 최신 안정 버전으로 업데이트
+  image_picker: ^1.1.2
+  flutter_image_compress: ^2.3.0
+  http: ^1.2.2
+  path_provider: ^2.1.4
+  path: ^1.9.0
+  dio: ^5.7.0
+  google_vision: ^1.0.8+4
+  shared_preferences: ^2.3.2
+  flutter_native_splash: ^2.4.6
+  flutter_dotenv: ^5.1.0  # 최신 버전을 사용하도록 설정합니다.
+  flutter_launcher_icons: ^0.14.3
+  google_sign_in: ^6.2.1  # 최신 버전 확인 후 추가
+  exif: ^3.3.0
+  image: ^4.2.0      # 이미지 회전 및 처리 패키지
+  permission_handler: ^11.3.1
+  flutter_html: ^3.0.0-beta.2  # 최신 베타 버전 사용
+  share_plus: ^10.1.4
+  smooth_page_indicator: ^1.2.0+3
+  intl: ^0.20.2
+  location: 6.0.2
+  provider: ^6.1.2
+  speech_to_text: ^7.0.0
+  flutter_tts: ^4.0.2
+  table_calendar: ^3.1.2
+  google_maps_flutter: ^2.2.0  # 지도 기능
+  google_places_flutter: ^2.0.9
+  flag: ^7.0.0
+  carousel_slider: ^5.0.0
+  flutter_local_notifications: ^18.0.1
+  package_info_plus: ^8.1.2
+  kakao_flutter_sdk_user: ^1.9.6
+  saver_gallery: ^4.0.1
+  firebase_core: ^3.10.0
+  firebase_auth: ^5.4.0
+  firebase_storage: ^12.4.0
+  firebase_messaging: ^15.2.0
+  cloud_firestore: ^5.6.1
+  sign_in_with_apple: ^6.1.4
+  web_socket_channel: ^3.0.2
+  firebase_database: ^11.3.4
+  device_info_plus: ^11.3.0
+  shimmer: ^3.0.0
+  crypto: ^3.0.6
+  in_app_purchase: ^3.2.1
+  video_player: ^2.9.5
+  photo_view: ^0.15.0
+  just_audio: ^0.10.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  fonts:
+    - family: Pretendard
+      fonts:
+        - asset: assets/fonts/Pretendard-Thin.otf
+          weight: 100
+        - asset: assets/fonts/Pretendard-ExtraLight.otf
+          weight: 200
+        - asset: assets/fonts/Pretendard-Light.otf
+          weight: 300
+        - asset: assets/fonts/Pretendard-Regular.otf
+          weight: 400
+        - asset: assets/fonts/Pretendard-Medium.otf
+          weight: 500
+        - asset: assets/fonts/Pretendard-SemiBold.otf
+          weight: 600
+        - asset: assets/fonts/Pretendard-Bold.otf
+          weight: 700
+        - asset: assets/fonts/Pretendard-ExtraBold.otf
+          weight: 800
+        - asset: assets/fonts/Pretendard-Black.otf
+          weight: 900
+        - asset: assets/fonts/SpoqaHanSansNeo-Regular.ttf
+        - asset: assets/fonts/SpoqaHanSansNeo-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/SpoqaHanSansNeo-Light.ttf
+          weight: 300
+        - asset: assets/fonts/SpoqaHanSansNeo-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/SpoqaHanSansNeo-Thin.ttf
+          weight: 100
+  assets:
+    - assets/
+    - assets/data/
+    - assets/menu_translation/
+    - assets/login/
+    - assets/main/
+    - assets/footer/
+    - assets/tripjoy_kit/
+    - assets/tripjoy_kit/weather/
+    - assets/tripjoy_kit/voice/
+    - assets/plan/
+    - assets/plan/item/
+    - assets/plan/country_code/
+    - assets/plan/itemlist/
+    - assets/side/
+    - assets/spiner/
+    - assets/tripjoy_kit/spinner/
+    - assets/sounds/
+    - assets/plan/spinner/
+    - assets/point/
+    - assets/manual/
+    - assets/data/city/
+    - assets/banners/
+    - assets/bottom_icons/
+    - assets/term/
+    - shorebird.yaml
+    - .env
