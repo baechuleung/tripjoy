@@ -1,7 +1,13 @@
+// lib/auth/login_selection/email/email_login_screen.dart
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:tripjoy/loading_widgets/loading_spinner_login.dart';
 import 'package:tripjoy/screens/main_page.dart';
+import 'package:tripjoy/auth/auth_service.dart';
+import 'package:tripjoy/auth/consent/consent_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tripjoy/utils/shared_preferences_util.dart';
 import 'email_sign_up_screen.dart';
 
 class EmailLoginScreen extends StatefulWidget {
@@ -34,17 +40,57 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
       });
 
       try {
-        await FirebaseAuth.instance.signInWithEmailAndPassword(
+        UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: _emailController.text.trim(),
           password: _passwordController.text,
         );
 
+        // Firebase ID 토큰 가져오기
+        String? idToken = await userCredential.user?.getIdToken();
+
+        if (idToken != null) {
+          // SharedPreferences에 사용자 정보 저장
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('userToken', idToken);
+          await prefs.setString('userEmail', _emailController.text.trim());
+          await prefs.setString('userName', userCredential.user?.displayName ?? '');
+          await prefs.setString('userPhotoUrl', userCredential.user?.photoURL ?? '');
+          await prefs.setString('loginType', 'email');
+
+          // 로그인 상태 저장
+          await SharedPreferencesUtil.setLoggedIn(true);
+        }
+
+        // FCM 토큰 가져오기
+        String? fcmToken = await FirebaseMessaging.instance.getToken();
+
+        // 사용자 존재 여부 확인
+        bool userExists = await AuthService.checkUserExists(userCredential.user!.uid);
+
         if (mounted) {
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => MainPage()),
-                (route) => false,
-          );
+          if (userExists) {
+            // 기존 사용자는 바로 메인 페이지로 이동
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => MainPage()),
+                  (route) => false,
+            );
+          } else {
+            // 신규 사용자는 동의 페이지로 이동
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ConsentPage(
+                  userCredential: userCredential,
+                  displayName: userCredential.user?.displayName ?? '',
+                  email: _emailController.text.trim(),
+                  photoUrl: userCredential.user?.photoURL ?? '',
+                  loginType: 'email',
+                  fcmToken: fcmToken ?? '',
+                ),
+              ),
+            );
+          }
         }
       } on FirebaseAuthException catch (e) {
         String message;

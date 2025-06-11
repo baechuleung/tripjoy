@@ -1,3 +1,4 @@
+// lib/auth/login_selection/apple/apple_sign_in_function.dart
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -54,11 +55,13 @@ Future<void> handleSignInWithApple(BuildContext context, Function setLoading) as
       bool userExists = await AuthService.checkUserExists(userCredential.user!.uid);
 
       if (userExists) {
+        // 기존 사용자는 바로 메인 페이지로 이동
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => MainPage()),
         );
       } else {
+        // 신규 사용자는 동의 페이지로 이동
         Navigator.push(
           context,
           MaterialPageRoute(

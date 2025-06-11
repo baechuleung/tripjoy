@@ -5,6 +5,7 @@ import 'google/google_sign_in_function.dart';
 import 'kakao/kakao_sign_in_function.dart';
 import 'apple/apple_sign_in_function.dart';
 import 'email/email_login_screen.dart'; // 이메일 로그인 화면 import 추가
+import 'package:url_launcher/url_launcher.dart';
 
 class LoginSelectionScreen extends StatefulWidget {
   const LoginSelectionScreen({Key? key}) : super(key: key);
@@ -41,7 +42,7 @@ class _LoginSelectionScreenState extends State<LoginSelectionScreen> {
           },
         ),
         title: Text(
-          '로그인',
+          '',
           style: TextStyle(
             color: Colors.black,
             fontSize: 16,
@@ -61,51 +62,44 @@ class _LoginSelectionScreenState extends State<LoginSelectionScreen> {
   Widget _buildContent(BuildContext context) {
     return Container(
       color: Colors.white,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            _buildLogo(),
-            const SizedBox(height: 10),
-            _buildSubtitleText(),
-            const SizedBox(height: 25),
-            _buildSimpleLoginDivider(),
-            const SizedBox(height: 15),
-            _buildLoginButton('google', context, () =>
-                handleSignInWithGoogle(context, setLoading)),
-            const SizedBox(height: 15),
-            _buildLoginButton('apple', context, () =>
-                handleSignInWithApple(context, setLoading)),
-            const SizedBox(height: 15),
-            _buildLoginButton('kakao', context, () =>
-                handleSignInWithKakao(context, setLoading)),
-            const SizedBox(height: 15),
-            _buildEmailLoginButton(context),
-            const SizedBox(height: 20),
-          ],
-        ),
+      child: Column(
+        children: [
+          // 로고를 화면 정중앙에 배치
+          Expanded(
+            child: Center(
+              child: _buildLogo(),
+            ),
+          ),
+          // 간편로그인 섹션을 하단에 배치
+          Column(
+            children: [
+              _buildSimpleLoginDivider(),
+              const SizedBox(height: 15),
+              _buildLoginButton('google', context, () =>
+                  handleSignInWithGoogle(context, setLoading)),
+              const SizedBox(height: 15),
+              _buildLoginButton('apple', context, () =>
+                  handleSignInWithApple(context, setLoading)),
+              const SizedBox(height: 15),
+              _buildLoginButton('kakao', context, () =>
+                  handleSignInWithKakao(context, setLoading)),
+              const SizedBox(height: 15),
+              _buildEmailLoginButton(context),
+              const SizedBox(height: 100), // 간격을 100으로 증가
+              _buildInquiryText(context),
+              const SizedBox(height: 40), // 하단 여백
+            ],
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildLogo() {
     return Image.asset(
-      'assets/login/login_logo.png',
+      'assets/auth_logo.png',
       width: 204,
       height: 71,
-    );
-  }
-
-  Widget _buildSubtitleText() {
-    return Text(
-      '한번의 스캔으로 즐기는 로컬여행',
-      style: TextStyle(
-        color: Color(0xFF424242),
-        fontSize: 14,
-        fontFamily: 'Pretendard',
-        fontWeight: FontWeight.w400,
-        height: 1.0,
-      ),
     );
   }
 
@@ -193,6 +187,47 @@ class _LoginSelectionScreenState extends State<LoginSelectionScreen> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  // 문의하기 텍스트 추가
+  Widget _buildInquiryText(BuildContext context) {
+    return GestureDetector(
+      onTap: () async {
+        final Uri url = Uri.parse('http://pf.kakao.com/_Klbrn');
+        if (await canLaunchUrl(url)) {
+          await launchUrl(url, mode: LaunchMode.externalApplication);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('링크를 열 수 없습니다.')),
+          );
+        }
+      },
+      child: Text.rich(
+        TextSpan(
+          children: [
+            TextSpan(
+              text: '로그인이 안되시나요? ',
+              style: TextStyle(
+                color: const Color(0xFF666666),
+                fontSize: 14,
+                fontFamily: 'Pretendard',
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            TextSpan(
+              text: '문의하기',
+              style: TextStyle(
+                color: const Color(0xFF666666),
+                fontSize: 14,
+                fontFamily: 'Pretendard',
+                fontWeight: FontWeight.w500,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ],
         ),
       ),
     );

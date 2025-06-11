@@ -1,3 +1,4 @@
+// lib/auth/consent/consent_page.dart
 import 'package:flutter/material.dart';
 import '../../term/term_service.dart';
 import '../../term/term_privacy.dart';
@@ -5,7 +6,7 @@ import '../../term/term_third_party.dart';
 import '../../term/term_location.dart';
 import '../../term/term_marketing.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../sign_up_complete_screen.dart';
+import '../user_info_input_screen.dart';
 
 class ConsentPage extends StatefulWidget {
   final UserCredential userCredential;
@@ -76,7 +77,7 @@ class _ConsentPageState extends State<ConsentPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          '이용약관',
+          '',
           style: TextStyle(color: Colors.black,
               fontSize: 18,
               fontWeight: FontWeight.w700),
@@ -100,28 +101,23 @@ class _ConsentPageState extends State<ConsentPage> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         const SizedBox(height: 40),
-                        Text.rich(
-                          TextSpan(
-                            children: [
-                              const TextSpan(
-                                text: '반갑습니다!\n',
-                                style: TextStyle(color: Colors.black,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w500),
-                              ),
-                              TextSpan(
-                                text: widget.displayName,
-                                style: const TextStyle(color: Colors.black,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w700),
-                              ),
-                              const TextSpan(
-                                text: ' 사용을 위한\n동의가 필요합니다.',
-                                style: TextStyle(color: Colors.black,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w500),
-                              ),
-                            ],
+                        Text(
+                          '서비스 가입',
+                          style: TextStyle(
+                            color: const Color(0xFF353535),
+                            fontSize: 24,
+                            fontFamily: 'Pretendard',
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          '반갑습니다! ${widget.displayName}님 트립조이 사용을 위한\n동의가 필요합니다.',
+                          style: TextStyle(
+                            color: const Color(0xFF666666),
+                            fontSize: 14,
+                            fontFamily: 'Pretendard',
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                         const SizedBox(height: 40),
@@ -137,7 +133,7 @@ class _ConsentPageState extends State<ConsentPage> {
                           margin: const EdgeInsets.only(bottom: 20),
                           height: 55,
                           decoration: ShapeDecoration(
-                            color: const Color(0xFF7269F7),
+                            color: const Color(0xFF4050FF),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -145,10 +141,11 @@ class _ConsentPageState extends State<ConsentPage> {
                           child: TextButton(
                             onPressed: allRequiredConsentsAccepted
                                 ? () {
+                              // 회원정보 입력 페이지로 이동
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => SignUpCompleteScreen(
+                                  builder: (context) => UserInfoInputScreen(
                                     personalInfoConsent: personalInfoConsent,
                                     locationInfoConsent: locationInfoConsent,
                                     termsOfServiceConsent: termsOfServiceConsent,
@@ -159,7 +156,7 @@ class _ConsentPageState extends State<ConsentPage> {
                                     email: widget.email,
                                     photoUrl: widget.photoUrl,
                                     loginType: widget.loginType,
-                                    fcmToken: widget.fcmToken,  // FCM 토큰 전달
+                                    fcmToken: widget.fcmToken,
                                   ),
                                 ),
                               );
@@ -191,42 +188,58 @@ class _ConsentPageState extends State<ConsentPage> {
   Widget buildAllConsentsBox(String title, bool value,
       Function(bool?) onChanged) {
     return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(
-          width: 1,
-          color: const Color(0xFFD0D0D0),
+      height: 60,
+      decoration: ShapeDecoration(
+        color: const Color(0xFFF7F7F7),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
         ),
-        borderRadius: BorderRadius.circular(10),
       ),
-      child: ListTile(
-        leading: GestureDetector(
-          onTap: () => onChanged(!value),
-          child: Container(
-            width: 30,
-            height: 30,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: value ? const Color(0xFF7269F7) : Colors.grey
-                    .withOpacity(0.3),
-                width: 2,
+      child: Center(
+        child: ListTile(
+          dense: true,
+          contentPadding: EdgeInsets.symmetric(horizontal: 16),
+          visualDensity: VisualDensity(vertical: -4),
+          leading: GestureDetector(
+            onTap: () => onChanged(!value),
+            child: Container(
+              width: 24,
+              height: 24,
+              child: Stack(
+                children: [
+                  Positioned(
+                    left: 0,
+                    top: 0,
+                    child: Container(
+                      width: 24,
+                      height: 24,
+                      decoration: ShapeDecoration(
+                        color: value ? const Color(0xFF4050FF) : const Color(0xFFE2E2E2),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(7),
+                        ),
+                      ),
+                      child: Center(
+                        child: Icon(
+                          Icons.check,
+                          size: 16,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            child: Icon(
-              Icons.check,
-              size: 20,
-              color: value ? const Color(0xFF7269F7) : Colors.grey.withOpacity(
-                  0.3),
-            ),
           ),
-        ),
-        title: Text(
-          title,
-          style: const TextStyle(
-            color: Colors.black,
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
+          title: Text(
+            '약관 전체 동의',
+            style: TextStyle(
+              color: const Color(0xFF353535),
+              fontSize: 14,
+              fontFamily: 'Pretendard',
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ),
@@ -325,19 +338,30 @@ class _ConsentPageState extends State<ConsentPage> {
           child: Container(
             width: 24,
             height: 24,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: value ? const Color(0xFF7269F7) : Colors.grey
-                    .withOpacity(0.3),
-                width: 2,
-              ),
-            ),
-            child: Icon(
-              Icons.check,
-              size: 16,
-              color: value ? const Color(0xFF7269F7) : Colors.grey.withOpacity(
-                  0.3),
+            child: Stack(
+              children: [
+                Positioned(
+                  left: 0,
+                  top: 0,
+                  child: Container(
+                    width: 24,
+                    height: 24,
+                    decoration: ShapeDecoration(
+                      color: value ? const Color(0xFF4050FF) : const Color(0xFFE2E2E2),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(7),
+                      ),
+                    ),
+                    child: Center(
+                      child: Icon(
+                        Icons.check,
+                        size: 16,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -348,9 +372,10 @@ class _ConsentPageState extends State<ConsentPage> {
               child: Text(
                 title,
                 style: const TextStyle(
-                  color: Colors.black,
+                  color: const Color(0xFF4E5968),
                   fontSize: 14,
-                  fontWeight: FontWeight.w500,
+                  fontFamily: 'Pretendard',
+                  fontWeight: FontWeight.w600,
                 ),
                 overflow: TextOverflow.ellipsis,
               ),

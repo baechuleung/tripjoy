@@ -1,3 +1,4 @@
+// lib/auth/auth_service.dart
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -8,8 +9,21 @@ class AuthService {
 
   // 사용자가 존재하는지 확인하는 메서드
   static Future<bool> checkUserExists(String uid) async {
-    final doc = await _firestore.collection('users').doc(uid).get();
-    return doc.exists;
+    try {
+      print('🔍 Firestore에서 사용자 확인 시작 - uid: $uid');
+      final doc = await _firestore.collection('users').doc(uid).get();
+      bool exists = doc.exists;
+      print('🔍 Firestore 사용자 존재 여부: $exists');
+
+      if (exists) {
+        print('🔍 사용자 데이터: ${doc.data()}');
+      }
+
+      return exists;
+    } catch (e) {
+      print('❌ checkUserExists 오류: $e');
+      return false;
+    }
   }
 
   // 로그아웃 메서드
