@@ -129,5 +129,6 @@ flutter:
     - assets/banners/
     - assets/bottom_icons/
     - assets/term/
+    - assets/main/tab/
     - shorebird.yaml
     - .env

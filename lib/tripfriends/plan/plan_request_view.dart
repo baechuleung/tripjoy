@@ -210,7 +210,7 @@ class _PlanRequestViewState extends State<PlanRequestView> {
           GestureDetector(
             onTap: () => FocusScope.of(context).unfocus(),
             child: Container(
-              margin: const EdgeInsets.all(16.0),
+              margin: const EdgeInsets.fromLTRB(20, 10, 20, 0),
               decoration: ShapeDecoration(
                 color: Colors.white,
                 shape: RoundedRectangleBorder(
