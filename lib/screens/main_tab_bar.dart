@@ -13,7 +13,7 @@ class MainTabBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+      margin: const EdgeInsets.fromLTRB(16, 20, 16, 10),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
@@ -30,7 +30,7 @@ class MainTabBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           _buildTabItem(context, 0, 'assets/main/tab/travel.png', '트립프렌즈'),
-          _buildTabItem(context, 1, 'assets/main/tab/job.png', '위크메이트'),
+          _buildTabItem(context, 1, 'assets/main/tab/job.png', '워크메이트'),
           _buildTabItem(context, 2, 'assets/main/tab/talk.png', '현지톡톡'),
           _buildTabItem(context, 3, 'assets/main/tab/info.png', '실시간정보'),
         ],
@@ -58,7 +58,7 @@ class MainTabBar extends StatelessWidget {
               Text(
                 label,
                 style: TextStyle(
-                  color: isSelected ? const Color(0xFF3182F6) : const Color(0xFF1B1C1F),
+                  color: isSelected ? const Color(0xFF5963D0) : const Color(0xFF1B1C1F),
                   fontSize: 13,
                   fontFamily: 'Spoqa Han Sans Neo',
                   fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,

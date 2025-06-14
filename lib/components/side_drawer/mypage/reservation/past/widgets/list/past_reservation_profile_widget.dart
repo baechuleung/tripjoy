@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:tripjoy/tripfriends/detail/friends_detail_page.dart';
+import 'package:tripjoy/tripfriends/detail/screens/friends_detail_page.dart';
 
 /// 프렌즈 프로필 정보를 표시하는 위젯
 class PastReservationProfileWidget extends StatelessWidget {

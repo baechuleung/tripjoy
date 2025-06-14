@@ -230,8 +230,8 @@ class ScheduledDateWidget extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     const Icon(
-                      Icons.edit_outlined,
-                      size: 14,
+                      Icons.close,
+                      size: 20,
                       color: Color(0xFF237AFF),
                     ),
                   ],

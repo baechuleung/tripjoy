@@ -9,6 +9,7 @@ import 'plan_city_selector.dart';
 import 'plan_status_section.dart';
 import '../friendslist/views/friends_list_view.dart';
 import 'login_required_dialog.dart';
+import '../manual/manual_page.dart';
 
 class PlanRequestView extends StatefulWidget {
   const PlanRequestView({Key? key}) : super(key: key);
@@ -86,6 +87,13 @@ class _PlanRequestViewState extends State<PlanRequestView> {
   void _cancelPlanSubscription() {
     _planSubscription?.cancel();
     _planSubscription = null;
+  }
+
+  void _navigateToHelp() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ManualPage()),
+    );
   }
 
   Future<void> _findMatchingFriends() async {
@@ -210,7 +218,7 @@ class _PlanRequestViewState extends State<PlanRequestView> {
           GestureDetector(
             onTap: () => FocusScope.of(context).unfocus(),
             child: Container(
-              margin: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+              margin: const EdgeInsets.fromLTRB(16, 0, 16, 0),
               decoration: ShapeDecoration(
                 color: Colors.white,
                 shape: RoundedRectangleBorder(
@@ -226,21 +234,23 @@ class _PlanRequestViewState extends State<PlanRequestView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // 어디로 떠나시나요? 텍스트와 이미지를 Row로 배치
+                      // 어디로 떠나시나요? 텍스트와 help 아이콘을 Row로 배치
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // 이미지를 텍스트 앞에 배치하고 사이즈 30으로 변경
-                          Image.asset(
-                            'assets/main/main_fly.png',
-                            width: 30,
-                            height: 30,
-                          ),
-                          const SizedBox(width: 8),
                           Text(
                             '어디로 떠나시나요?',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: _navigateToHelp,
+                            child: Icon(
+                              Icons.help_outline,
+                              color: Color(0xFF767ED7),
+                              size: 20,
                             ),
                           ),
                         ],

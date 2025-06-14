@@ -40,12 +40,7 @@ class PlanRequestController {
     {'code': 'JP', 'name': '일본', 'flag': '🇯🇵'},
     {'code': 'VN', 'name': '베트남', 'flag': '🇻🇳'},
     {'code': 'TH', 'name': '태국', 'flag': '🇹🇭'},
-    {'code': 'TW', 'name': '대만', 'flag': '🇹🇼'},
-    {'code': 'CN', 'name': '중국', 'flag': '🇨🇳'},
-    {'code': 'HK', 'name': '홍콩', 'flag': '🇭🇰'},
     {'code': 'PH', 'name': '필리핀', 'flag': '🇵🇭'},
-    {'code': 'GU', 'name': '괌', 'flag': '🇬🇺'},
-    {'code': 'SG', 'name': '싱가포르', 'flag': '🇸🇬'},
   ];
 
   // 상태 변경 콜백

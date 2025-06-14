@@ -19,11 +19,11 @@ class ReportDialog extends StatefulWidget {
 class _ReportDialogState extends State<ReportDialog> {
   // 신고 타입 옵션들 - 요청에 따라 일부 항목 제거
   final List<String> _reportTypes = [
-    '욕설 / 비방',
-    '무례한 태도 / 반복된 불쾌한 요구',
-    '부적절한 여행 안내',
-    '금전 요구 또는 불법행위 비용요청',
-    '기타'
+    '욕설/비방',
+    '무례한 태도/부적절한 제한',
+    '상품/서비스 판매 권유',
+    '개인 정보 요구',
+    '기타(직접입력)'
   ];
 
   // 선택된 신고 타입
@@ -32,96 +32,210 @@ class _ReportDialogState extends State<ReportDialog> {
   // 기타 이유 텍스트 컨트롤러
   final TextEditingController _customReasonController = TextEditingController();
 
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: Colors.white, // 명시적으로 배경색을 흰색으로 설정
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0), // 모서리를 더 둥글게
-      ),
-      title: Row(
+  // 커스텀 라디오 버튼 위젯
+  Widget _buildCustomRadioButton(bool isSelected) {
+    return Container(
+      width: 24,
+      height: 24,
+      child: Stack(
         children: [
-          const Icon(Icons.warning, color: Colors.orange, size: 20), // 아이콘 크기 줄임
-          const SizedBox(width: 8),
-          Text(
-            '해당 프렌즈를 신고하시겠어요?',
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500), // 타이틀 글자 크기 줄임
+          Positioned(
+            left: 2,
+            top: 2,
+            child: Container(
+              width: 20,
+              height: 20,
+              decoration: ShapeDecoration(
+                shape: RoundedRectangleBorder(
+                  side: BorderSide(
+                    width: 3,
+                    color: isSelected ? const Color(0xFF3182F6) : const Color(0x42556789),
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
           ),
+          if (isSelected)
+            Positioned(
+              left: 8,
+              top: 8,
+              child: Container(
+                width: 8,
+                height: 8,
+                decoration: ShapeDecoration(
+                  color: const Color(0xFF3182F6),
+                  shape: OvalBorder(
+                    side: BorderSide(
+                      width: 1,
+                      color: const Color(0xFF3182F6),
+                    ),
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
-      contentPadding: const EdgeInsets.fromLTRB(20, 12, 20, 16), // 컨텐츠 패딩 조정
-      content: SingleChildScrollView(
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.9, // 화면 너비의 90%
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 라디오 버튼 목록
-            for (String type in _reportTypes)
-              RadioListTile<String>(
-                title: Text(
-                  type,
-                  style: const TextStyle(fontSize: 14), // 목록 항목 글자 크기 줄임
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(
+                '⚠️ 해당 프렌즈를 신고하시겠어요?',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: const Color(0xFF353535),
+                  fontSize: 16,
+                  fontFamily: 'Pretendard',
+                  fontWeight: FontWeight.w600,
                 ),
-                value: type,
-                groupValue: _selectedType,
-                onChanged: (value) {
-                  setState(() {
-                    _selectedType = value;
-                  });
-                },
-                activeColor: Colors.blue,
-                contentPadding: EdgeInsets.zero,
-                dense: true, // 목록 항목 간격 더 조밀하게
               ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 라디오 버튼 목록
+                    for (String type in _reportTypes)
+                      InkWell(
+                        onTap: () {
+                          setState(() {
+                            _selectedType = type;
+                          });
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12.0),
+                          child: Row(
+                            children: [
+                              _buildCustomRadioButton(_selectedType == type),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  type,
+                                  style: const TextStyle(fontSize: 14),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
 
-            // '기타' 선택 시 표시할 텍스트 필드
-            if (_selectedType == '기타')
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: TextField(
-                  controller: _customReasonController,
-                  style: const TextStyle(fontSize: 14), // 입력 필드 글자 크기 줄임
-                  decoration: const InputDecoration(
-                    hintText: '신고 이유를 입력하세요',
-                    hintStyle: TextStyle(fontSize: 13), // 힌트 텍스트 크기 줄임
-                    border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  ),
-                  maxLines: 3,
+                    // '기타' 선택 시 표시할 텍스트 필드
+                    if (_selectedType == '기타(직접입력)')
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16.0),
+                        child: TextField(
+                          controller: _customReasonController,
+                          style: const TextStyle(fontSize: 14),
+                          decoration: InputDecoration(
+                            hintText: '신고 이유를 입력하세요',
+                            hintStyle: TextStyle(fontSize: 13),
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide(color: const Color(0xFFE4E4E4)),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: const Color(0xFFE4E4E4)),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: const Color(0xFFE4E4E4)),
+                            ),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          ),
+                          maxLines: 3,
+                        ),
+                      ),
+                  ],
                 ),
               ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      height: 45,
+                      child: TextButton(
+                        onPressed: widget.onCancel,
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(
+                              width: 1,
+                              color: const Color(0xFFE4E4E4),
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          '취소',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: const Color(0xFF999999),
+                            fontSize: 14,
+                            fontFamily: 'Pretendard',
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Container(
+                      height: 45,
+                      child: ElevatedButton(
+                        onPressed: _selectedType == null
+                            ? null
+                            : () {
+                          final customReason = _selectedType == '기타(직접입력)' ? _customReasonController.text : null;
+                          widget.onReport(_selectedType!, customReason);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          backgroundColor: const Color(0xFFFFE8E8),
+                          foregroundColor: const Color(0xFFFF5050),
+                          elevation: 0,
+                          disabledBackgroundColor: const Color(0xFFF5F5F5),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          '신고하기',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: _selectedType == null ? const Color(0xFFCCCCCC) : const Color(0xFFFF5050),
+                            fontSize: 14,
+                            fontFamily: 'Pretendard',
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: widget.onCancel,
-          style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          ),
-          child: const Text(
-            '취소',
-            style: TextStyle(fontSize: 14), // 버튼 글자 크기 줄임
-          ),
-        ),
-        ElevatedButton(
-          onPressed: _selectedType == null
-              ? null  // 선택이 없으면 비활성화
-              : () {
-            final customReason = _selectedType == '기타' ? _customReasonController.text : null;
-            widget.onReport(_selectedType!, customReason);
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.red[100],
-            foregroundColor: Colors.red[900],
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), // 버튼 패딩 조정
-          ),
-          child: const Text(
-            '신고하기',
-            style: TextStyle(fontSize: 14), // 버튼 글자 크기 줄임
-          ),
-        ),
-      ],
     );
   }
 
@@ -145,50 +259,109 @@ class BlockDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: Colors.white, // 명시적으로 배경색을 흰색으로 설정
+    return Dialog(
+      backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0), // 모서리를 더 둥글게
+        borderRadius: BorderRadius.circular(12.0),
       ),
-      title: Row(
-        children: [
-          const Icon(Icons.warning, color: Colors.orange, size: 20), // 아이콘 크기 줄임
-          const SizedBox(width: 8),
-          Text(
-            '이 프렌즈를 차단하시겠어요?',
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500), // 타이틀 글자 크기 줄임
-          ),
-        ],
-      ),
-      contentPadding: const EdgeInsets.fromLTRB(20, 12, 20, 16), // 컨텐츠 패딩 조정
-      content: const Text(
-        '차단 시 대화를 더 이상 주고 받을 수 없으며, 추후 동일 프렌즈와의 매칭되지 않습니다.',
-        style: TextStyle(fontSize: 14), // 내용 글자 크기 줄임
-      ),
-      actions: [
-        TextButton(
-          onPressed: onCancel,
-          style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          ),
-          child: const Text(
-            '취소',
-            style: TextStyle(fontSize: 14), // 버튼 글자 크기 줄임
-          ),
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.9, // 화면 너비의 90%
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(
+                '이 프렌즈를 차단하시겠어요?',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: const Color(0xFF353535),
+                  fontSize: 16,
+                  fontFamily: 'Pretendard',
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+              child: const Text(
+                '차단 시 대화를 더 이상 주고 받을 수 없으며, 추후 동일 프렌즈와의 매칭되지 않습니다.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: const Color(0x7F14181F),
+                  fontSize: 14,
+                  fontFamily: 'Pretendard',
+                  fontWeight: FontWeight.w400,
+                  height: 1.43,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      height: 45,
+                      child: TextButton(
+                        onPressed: onCancel,
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(
+                              width: 1,
+                              color: const Color(0xFFE4E4E4),
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          '취소',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: const Color(0xFF999999),
+                            fontSize: 14,
+                            fontFamily: 'Pretendard',
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Container(
+                      height: 45,
+                      child: ElevatedButton(
+                        onPressed: onBlock,
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          backgroundColor: const Color(0xFFFFE8E8),
+                          foregroundColor: const Color(0xFFFF5050),
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          '차단하기',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: const Color(0xFFFF5050),
+                            fontSize: 14,
+                            fontFamily: 'Pretendard',
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
-        ElevatedButton(
-          onPressed: onBlock,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.red[100],
-            foregroundColor: Colors.red[900],
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), // 버튼 패딩 조정
-          ),
-          child: const Text(
-            '차단하기',
-            style: TextStyle(fontSize: 14), // 버튼 글자 크기 줄임
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

@@ -76,12 +76,12 @@ class _PlanStatusSectionState extends State<PlanStatusSection> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
+      margin: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 8.0),
       decoration: ShapeDecoration(
         color: Colors.white,
         shape: RoundedRectangleBorder(
           side: const BorderSide(width: 1, color: Color(0xFFE4E4E4)),
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: BorderRadius.circular(10),
         ),
       ),
       child: Stack(

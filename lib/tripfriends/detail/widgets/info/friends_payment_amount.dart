@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../reservation/widgets/payment_info_popup.dart';
-import '../reservation/widgets/payment_info_card.dart';
+import '../../../reservation/widgets/payment_info_popup.dart';
+import '../../../reservation/widgets/payment_info_card.dart';
 
 class FriendsPaymentAmount extends StatelessWidget {
   final Map<String, dynamic> friends;

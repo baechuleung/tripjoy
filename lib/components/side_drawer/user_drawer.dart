@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math';
 import 'dart:async';
+import 'package:intl/intl.dart';
 import 'user_notice_list.dart';
 import 'invite_service.dart';
 import 'logout_handler.dart';
@@ -22,6 +23,7 @@ class UserDrawer extends StatefulWidget {
 class _UserDrawerState extends State<UserDrawer> {
   String? _photoUrl;
   String? _nickname;
+  int? _points;
   StreamSubscription<DocumentSnapshot>? _userSubscription;
   bool _isImageLoading = true;
   ImageProvider? _avatarImage;
@@ -63,6 +65,7 @@ class _UserDrawerState extends State<UserDrawer> {
           setState(() {
             _nickname = docSnapshot.data()?['name'] ?? '여행하는길동이 님';
             _photoUrl = docSnapshot.data()?['photoUrl'];
+            _points = docSnapshot.data()?['points'] ?? 0;
             if (_photoUrl == null || _photoUrl!.isEmpty) {
               _photoUrl = getRandomDefaultAvatar();
             }
@@ -115,6 +118,7 @@ class _UserDrawerState extends State<UserDrawer> {
         setState(() {
           _nickname = doc.data()?['name'] ?? '여행하는길동이 님';
           _photoUrl = doc.data()?['photoUrl'];
+          _points = doc.data()?['points'] ?? 0;
           if (_photoUrl == null || _photoUrl!.isEmpty) {
             _photoUrl = getRandomDefaultAvatar();
           }
@@ -237,6 +241,17 @@ class _UserDrawerState extends State<UserDrawer> {
                                 ),
                               ),
                             ],
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Center(
+                          child: Text(
+                            '${NumberFormat('#,###').format(_points ?? 0)} P',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF666666),
+                            ),
                           ),
                         ),
                       ],

@@ -1,7 +1,7 @@
 // lib/chat/widgets/chat_header.dart
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:tripjoy/tripfriends/detail/friends_detail_page.dart';
+import 'package:tripjoy/tripfriends/detail/screens/friends_detail_page.dart';
 import 'chat_popup_menu.dart';
 
 class ChatHeader extends StatelessWidget implements PreferredSizeWidget {

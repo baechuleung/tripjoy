@@ -4,7 +4,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'camera_function.dart';
 import 'camera_permission.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../filming/camera/cam_dec.dart';
+import 'cam_dec.dart';
 import 'package:tripjoy/screens/main_page.dart';
 import 'dart:async';
 

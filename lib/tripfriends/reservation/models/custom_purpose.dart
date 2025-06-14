@@ -17,7 +17,6 @@ class CustomPurposeSelector extends StatefulWidget {
 class _CustomPurposeSelectorState extends State<CustomPurposeSelector> {
   // 현재 선택된 이용목적들
   late List<String> _selectedPurposes;
-  final int _maxSelections = 3; // 최대 선택 가능한 이용목적 수
 
   @override
   void initState() {
@@ -32,11 +31,7 @@ class _CustomPurposeSelectorState extends State<CustomPurposeSelector> {
   final List<String> purposes = [
     '맛집/카페 탐방',
     '전통시장/쇼핑탐방',
-    '문화/관광지 체험',
-    '밤거리 동행',
-    '자유일정 동행/통역',
-    '긴급 생활지원',
-    '기타'
+    '자유일정/통역'
   ];
 
   // 이용목적 선택/취소 처리
@@ -46,18 +41,8 @@ class _CustomPurposeSelectorState extends State<CustomPurposeSelector> {
         // 이미 선택되어 있으면 제거
         _selectedPurposes.remove(purpose);
       } else {
-        // 선택되어 있지 않으면 최대 3개까지만 추가
-        if (_selectedPurposes.length < _maxSelections) {
-          _selectedPurposes.add(purpose);
-        } else {
-          // 최대 선택 수를 초과하면 알림 표시
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('최대 $_maxSelections개까지 선택 가능합니다'),
-              duration: const Duration(seconds: 2),
-            ),
-          );
-        }
+        // 선택되어 있지 않으면 추가
+        _selectedPurposes.add(purpose);
       }
     });
   }
@@ -105,17 +90,6 @@ class _CustomPurposeSelectorState extends State<CustomPurposeSelector> {
             ),
           ),
 
-          const SizedBox(height: 8),
-
-          // 부가 설명 텍스트
-          Text(
-            '최대 $_maxSelections개까지 선택 가능합니다',
-            style: const TextStyle(
-              fontSize: 14,
-              color: Color(0xFF666666),
-            ),
-          ),
-
           const SizedBox(height: 16),
 
           // 목적 옵션 그리드 레이아웃 (한 줄에 2개씩)
@@ -127,16 +101,12 @@ class _CustomPurposeSelectorState extends State<CustomPurposeSelector> {
                   _buildPurposeOption(
                     purposes[0],
                     _selectedPurposes.contains(purposes[0]),
-                    !_selectedPurposes.contains(purposes[0]) &&
-                        _selectedPurposes.length >= _maxSelections,
                     itemWidth,
                   ),
                   const SizedBox(width: 8),
                   _buildPurposeOption(
                     purposes[1],
                     _selectedPurposes.contains(purposes[1]),
-                    !_selectedPurposes.contains(purposes[1]) &&
-                        _selectedPurposes.length >= _maxSelections,
                     itemWidth,
                   ),
                 ],
@@ -144,60 +114,12 @@ class _CustomPurposeSelectorState extends State<CustomPurposeSelector> {
 
               const SizedBox(height: 8), // 행 사이 간격
 
-              // 두 번째 행 (2, 3번 항목)
+              // 두 번째 행 (2번 항목)
               Row(
                 children: [
                   _buildPurposeOption(
                     purposes[2],
                     _selectedPurposes.contains(purposes[2]),
-                    !_selectedPurposes.contains(purposes[2]) &&
-                        _selectedPurposes.length >= _maxSelections,
-                    itemWidth,
-                  ),
-                  const SizedBox(width: 8),
-                  _buildPurposeOption(
-                    purposes[3],
-                    _selectedPurposes.contains(purposes[3]),
-                    !_selectedPurposes.contains(purposes[3]) &&
-                        _selectedPurposes.length >= _maxSelections,
-                    itemWidth,
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 8), // 행 사이 간격
-
-              // 세 번째 행 (4, 5번 항목)
-              Row(
-                children: [
-                  _buildPurposeOption(
-                    purposes[4],
-                    _selectedPurposes.contains(purposes[4]),
-                    !_selectedPurposes.contains(purposes[4]) &&
-                        _selectedPurposes.length >= _maxSelections,
-                    itemWidth,
-                  ),
-                  const SizedBox(width: 8),
-                  _buildPurposeOption(
-                    purposes[5],
-                    _selectedPurposes.contains(purposes[5]),
-                    !_selectedPurposes.contains(purposes[5]) &&
-                        _selectedPurposes.length >= _maxSelections,
-                    itemWidth,
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 8), // 행 사이 간격
-
-              // 네 번째 행 (6번 항목 - '기타')
-              Row(
-                children: [
-                  _buildPurposeOption(
-                    purposes[6],
-                    _selectedPurposes.contains(purposes[6]),
-                    !_selectedPurposes.contains(purposes[6]) &&
-                        _selectedPurposes.length >= _maxSelections,
                     itemWidth,
                   ),
                   const SizedBox(width: 8),
@@ -242,9 +164,9 @@ class _CustomPurposeSelectorState extends State<CustomPurposeSelector> {
   }
 
   // 이용목적 옵션 위젯 - 고정 너비 사용
-  Widget _buildPurposeOption(String purpose, bool isSelected, bool isDisabled, double width) {
+  Widget _buildPurposeOption(String purpose, bool isSelected, double width) {
     return GestureDetector(
-      onTap: isDisabled || purpose.isEmpty ? null : () => _togglePurpose(purpose),
+      onTap: () => _togglePurpose(purpose),
       child: Container(
         width: width,
         height: 44, // 높이 고정
@@ -252,12 +174,12 @@ class _CustomPurposeSelectorState extends State<CustomPurposeSelector> {
         decoration: BoxDecoration(
           color: isSelected
               ? const Color(0xFFE6EFFF)
-              : (isDisabled ? const Color(0xFFF5F5F5) : Colors.white),
+              : Colors.white,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: isSelected
                 ? const Color(0xFF237AFF)
-                : (isDisabled ? const Color(0xFFCCCCCC) : const Color(0xFFD9D9D9)),
+                : const Color(0xFFD9D9D9),
             width: 1,
           ),
         ),
@@ -274,22 +196,21 @@ class _CustomPurposeSelectorState extends State<CustomPurposeSelector> {
                   size: 16,
                 ),
               ),
-            if (purpose.isNotEmpty) // 빈 텍스트인 경우 표시하지 않음
-              Flexible(
-                child: Text(
-                  purpose,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                    color: isSelected
-                        ? const Color(0xFF237AFF)
-                        : (isDisabled ? const Color(0xFF999999) : const Color(0xFF1A1A1A)),
-                  ),
-                  textAlign: TextAlign.center, // 텍스트 중앙 정렬
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+            Flexible(
+              child: Text(
+                purpose,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  color: isSelected
+                      ? const Color(0xFF237AFF)
+                      : const Color(0xFF1A1A1A),
                 ),
+                textAlign: TextAlign.center, // 텍스트 중앙 정렬
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
+            ),
           ],
         ),
       ),

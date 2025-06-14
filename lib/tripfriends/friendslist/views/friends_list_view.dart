@@ -7,8 +7,9 @@ import '../widgets/friends_list_header.dart';
 import '../widgets/selected_filters_display.dart';
 import '../widgets/loading_spinner.dart';
 import '../widgets/friends_list_item.dart';
-import '../../detail/friends_detail_page.dart';
+import '../../detail/screens/friends_detail_page.dart';
 import 'friends_filter_bottom_sheet.dart';
+import '../widgets/ad_banner_widget.dart';
 
 class FriendsListView extends StatefulWidget {
   final List<String>? friendUserIds;
@@ -179,34 +180,73 @@ class _FriendsListViewState extends State<FriendsListView> {
       );
     }
 
-    // 데이터가 있으면 리스트 표시
+    // 데이터가 있으면 Grid 표시
     if (manager.displayFriends.isNotEmpty) {
       return Column(
         children: [
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            padding: const EdgeInsets.only(bottom: 16),
-            itemCount: manager.displayFriends.length,
-            itemBuilder: (context, index) {
-              final friend = manager.displayFriends[index];
-              return Column(
-                children: [
-                  if (index > 0) _buildDivider(),
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 16),
-                    padding: EdgeInsets.only(
-                      top: index == 0 ? 8 : 12,
-                      bottom: 12,
-                    ),
-                    child: FriendsListItem(
-                      friends: friend,
-                      onTap: () => _navigateToDetail(friend),
-                    ),
+          // GridView를 수동으로 구성
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Column(
+              children: [
+                // 첫 번째 줄 (0-2 인덱스)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start, // 추가: 상단 정렬
+                  children: List.generate(
+                    3,
+                        (index) {
+                      if (index < manager.displayFriends.length) {
+                        final friend = manager.displayFriends[index];
+                        return Expanded(
+                          child: Container(
+                            margin: EdgeInsets.only(
+                              left: index == 0 ? 0 : 5,
+                              right: index == 2 ? 0 : 5,
+                            ),
+                            child: AspectRatio(
+                              aspectRatio: 0.65,
+                              child: FriendsListItem(
+                                friends: friend,
+                                onTap: () => _navigateToDetail(friend),
+                              ),
+                            ),
+                          ),
+                        );
+                      } else {
+                        return Expanded(child: Container());
+                      }
+                    },
                   ),
-                ],
-              );
-            },
+                ),
+
+                // 광고 배너
+                if (manager.displayFriends.length > 3)
+                  const AdBannerWidget(),
+
+                // 나머지 아이템들 (3번 인덱스부터)
+                if (manager.displayFriends.length > 3)
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: const EdgeInsets.only(top: 10),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      childAspectRatio: 0.65,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                    ),
+                    itemCount: manager.displayFriends.length - 3,
+                    itemBuilder: (context, index) {
+                      final friend = manager.displayFriends[index + 3];
+                      return FriendsListItem(
+                        friends: friend,
+                        onTap: () => _navigateToDetail(friend),
+                      );
+                    },
+                  ),
+              ],
+            ),
           ),
         ],
       );
@@ -214,17 +254,6 @@ class _FriendsListViewState extends State<FriendsListView> {
 
     // 기본적으로 빈 컨테이너 반환
     return const SizedBox.shrink();
-  }
-
-  Widget _buildDivider() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 32),
-      child: Divider(
-        height: 1,
-        thickness: 1,
-        color: Color(0xFFE4E4E4),
-      ),
-    );
   }
 
   BoxDecoration _buildContainerDecoration() {

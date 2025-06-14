@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tripjoy/screens/main_page.dart';
-import 'package:tripjoy/tripjoy_kit/filming/camera/camera_page.dart';
+import 'package:tripjoy/triplens/camera/camera_page.dart';
 import 'package:tripjoy/components/side_drawer/mypage/reservation/reservation_page.dart';
 import 'package:tripjoy/chat/screens/chat_list_screen.dart'; // 채팅 리스트 추가
 import 'package:firebase_auth/firebase_auth.dart'; // Firebase Auth 추가

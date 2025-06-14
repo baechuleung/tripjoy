@@ -43,16 +43,15 @@ class FriendsListItem extends StatelessWidget {
       return Container(); // 화면에 표시하지 않음
     }
 
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(15), // 전체 라운드 적용
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(15), // InkWell에도 동일한 라운드 적용
-        child: Container(
-          padding: const EdgeInsets.all(8), // 내부 상하좌우 패딩 8
-          child: FriendsProfileItem(friends: safeData),  // 안전하게 처리된 데이터 전달
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
         ),
+        child: FriendsProfileItem(friends: safeData),  // 안전하게 처리된 데이터 전달
       ),
     );
   }

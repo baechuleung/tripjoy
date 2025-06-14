@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../reservation/reservation_page.dart';
-import '../../chat/screens/chat_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../chat/widgets/plan_show_dialog.dart';
+import '../../../reservation/reservation_page.dart';
+import '../../../../chat/widgets/plan_show_dialog.dart';
 
-class FriendsReservationButton extends StatelessWidget {
+class FriendsReservationActionButton extends StatelessWidget {
   final String friends_uid;
 
-  const FriendsReservationButton({
+  const FriendsReservationActionButton({
     super.key,
     required this.friends_uid,
   });
@@ -240,132 +239,25 @@ class FriendsReservationButton extends StatelessWidget {
     }
   }
 
-  // 채팅 화면으로 이동
-  Future<void> _navigateToChatScreen(BuildContext context) async {
-    try {
-      // 현재 로그인한 사용자 ID 가져오기
-      final currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser == null) {
-        throw Exception("로그인이 필요합니다.");
-      }
-      final userId = currentUser.uid; // 변수명 userId로 유지
-
-      // 프렌즈 정보 가져오기
-      final FirebaseFirestore firestore = FirebaseFirestore.instance;
-      final friendsDoc = await firestore
-          .collection('tripfriends_users')
-          .doc(friends_uid)
-          .get();
-
-      if (!friendsDoc.exists) {
-        throw Exception("프렌즈 정보를 찾을 수 없습니다.");
-      }
-
-      final friendsData = friendsDoc.data()!;
-      final String friendsName = friendsData['name'] ?? "프렌즈";
-      final String? friendsImage = friendsData['profileImageUrl'];
-
-      if (context.mounted) {
-        // 채팅 화면으로 이동
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ChatScreen(
-              userId: userId, // 원래 위젯 정의에 맞게 userId 유지
-              friendsId: friends_uid,
-              friendsName: friendsName,
-              friendsImage: friendsImage,
-            ),
-          ),
-        );
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('채팅 화면 이동 중 오류가 발생했습니다: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Color(0x1A000000),
-            blurRadius: 4,
-            offset: Offset(0, -2),
-          ),
-        ],
+    return ElevatedButton(
+      onPressed: () => _navigateToReservationPage(context),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xFF237AFF),
+        foregroundColor: Colors.white,
+        elevation: 0,
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(5),
+        ),
       ),
-      padding: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        bottom: MediaQuery.of(context).padding.bottom + 8,
-        top: 8,
-      ),
-      child: Row(
-        children: [
-          // 채팅하기 버튼
-          Expanded(
-            flex: 4,
-            child: ElevatedButton(
-              onPressed: () => _navigateToChatScreen(context),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: const Color(0xFF237AFF),
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                side: const BorderSide(
-                  color: Color(0xFF237AFF),
-                  width: 1,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5),
-                ),
-              ),
-              child: const Text(
-                '채팅하기',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-
-          const SizedBox(width: 8),
-
-          // 예약하기 버튼
-          Expanded(
-            flex: 6,
-            child: ElevatedButton(
-              onPressed: () => _navigateToReservationPage(context),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF237AFF),
-                foregroundColor: Colors.white,
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5),
-                ),
-              ),
-              child: const Text(
-                '예약하기',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-        ],
+      child: const Text(
+        '예약하기',
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }

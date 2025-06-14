@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../services/translation_service.dart';
+import '../../../../services/translation_service.dart';
 import 'package:intl/intl.dart';
 import 'package:video_player/video_player.dart';
-import 'full_screen_image_viewer.dart';
+import '../../screens/full_screen_image_viewer.dart';
+import 'friends_response_rate.dart'; // 응답률 위젯 import 추가
 
 class FriendsProfileDetail extends StatefulWidget {
   final Map<String, dynamic> friends;
@@ -403,7 +404,7 @@ class _FriendsProfileDetailState extends State<FriendsProfileDetail> {
                     children: [
                       const Icon(
                         Icons.star_rounded,
-                        size: 16,
+                        size: 18,
                         color: Colors.yellow,
                       ),
                       const SizedBox(width: 4),
@@ -446,8 +447,8 @@ class _FriendsProfileDetailState extends State<FriendsProfileDetail> {
                     children: [
                       const Icon(
                         Icons.people,
-                        size: 16,
-                        color: Colors.white,
+                        size: 18,
+                        color: Color(0xFFFF7797),
                       ),
                       const SizedBox(width: 4),
                       Text(
@@ -467,6 +468,11 @@ class _FriendsProfileDetailState extends State<FriendsProfileDetail> {
                       ),
                     ],
                   ),
+
+                  const SizedBox(width: 16),
+
+                  // 응답률 추가
+                  FriendsResponseRate(tripfriendsId: widget.friends['uid']),
                 ],
               ),
             ),

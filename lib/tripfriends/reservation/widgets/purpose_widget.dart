@@ -99,30 +99,29 @@ class PurposeWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              '이용목적',
-              style: const TextStyle(
-                fontSize: 13,
-                color: Color(0xFF666666),
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(height: 8),
             InkWell(
               onTap: isEditable ? () => showPurposeSelector(context) : null,
-              child: Column(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: purposes.map((purpose) => Padding(
-                            padding: const EdgeInsets.only(bottom: 4),
-                            child: Text(
-                              purpose,
+                  Text(
+                    '이용목적',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF666666),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Text(
+                              purposes.first,
                               style: const TextStyle(
                                 fontSize: 14,
                                 color: Color(0xFF333333),
@@ -130,19 +129,31 @@ class PurposeWidget extends StatelessWidget {
                               ),
                               textAlign: TextAlign.right,
                             ),
-                          )).toList(),
+                            if (isEditable)
+                              Padding(
+                                padding: const EdgeInsets.only(left: 8.0),
+                                child: const Icon(
+                                  Icons.close,
+                                  size: 20,
+                                  color: Color(0xFF237AFF),
+                                ),
+                              ),
+                          ],
                         ),
-                      ),
-                      if (isEditable)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8.0, top: 2.0),
-                          child: Icon(
-                            Icons.edit_outlined,
-                            size: 14,
-                            color: Color(0xFF237AFF),
+                        ...purposes.skip(1).map((purpose) => Padding(
+                          padding: EdgeInsets.only(top: 4, right: isEditable ? 28.0 : 0),
+                          child: Text(
+                            purpose,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Color(0xFF333333),
+                              fontWeight: FontWeight.w600,
+                            ),
+                            textAlign: TextAlign.right,
                           ),
-                        ),
-                    ],
+                        )).toList(),
+                      ],
+                    ),
                   ),
                 ],
               ),

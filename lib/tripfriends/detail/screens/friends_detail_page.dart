@@ -1,12 +1,12 @@
 // screens/friends_detail_page.dart
 import 'package:flutter/material.dart';
-import '../../services/translation_service.dart';
-import 'friends_profile_detail.dart';
-import 'friends_reviews.dart';
-import 'friends_one_line_reviews.dart';  // 한줄 리뷰 위젯 임포트
-import 'friends_introduction.dart';
-import 'friends_reservation_button.dart';
-import 'friends_payment_amount.dart';  // 새로운 위젯 임포트
+import '../../../services/translation_service.dart';
+import '../widgets/profile/friends_profile_detail.dart';
+import '../widgets/review/friends_reviews.dart';
+import '../widgets/review/friends_one_line_reviews.dart';  // 한줄 리뷰 위젯 임포트
+import '../widgets/info/friends_introduction.dart';
+import '../widgets/actions/friends_reservation_button.dart';
+import '../widgets/info/friends_payment_amount.dart';  // 새로운 위젯 임포트
 
 class FriendsDetailPage extends StatefulWidget {
   final Map<String, dynamic> friends;

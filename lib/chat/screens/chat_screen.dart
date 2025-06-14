@@ -5,6 +5,7 @@ import '../widgets/chat_header.dart';
 import '../widgets/chat_navigation_bar.dart';
 import '../widgets/chat_message_list.dart';
 import '../widgets/chat_input_field.dart';
+import '../widgets/chat_warning_notice.dart';
 import '../../services/fcm_service/handlers/chat_handler.dart'; // 수정된 경로
 
 class ChatScreen extends StatefulWidget {
@@ -111,15 +112,34 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         bottom: false, // 하단 안전 영역 비활성화 (입력 필드가 키보드 위에 완전히 보이도록)
         child: Column(
           children: [
-            // 네비게이션 바 - 예약하기 버튼 (수정된 부분)
+            // 유의사항 위젯 (예약하기 버튼보다 위에 위치)
+            const ChatWarningNotice(),
+
+            // 네비게이션 바 - 예약하기 버튼
             ChatNavigationBar(
               isCheckingReservation: _controller.isCheckingReservation,
               isReservationCompleted: _controller.isReservationCompleted,
               onReservationPressed: _controller.navigateToReservationPage,
             ),
 
-            // 구분선 추가
-            const Divider(height: 1, thickness: 1, color: Color(0xFFEEEEEE)),
+            // 구분선과 그림자를 포함한 컨테이너
+            Container(
+              decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.2),
+                    spreadRadius: 0,
+                    blurRadius: 4,
+                    offset: const Offset(0, 2), // 아래쪽으로 그림자
+                  ),
+                ],
+              ),
+              child: const Divider(
+                height: 1,
+                thickness: 1,
+                color: Color(0xFFEEEEEE),
+              ),
+            ),
 
             // 채팅 영역
             Expanded(

@@ -5,7 +5,6 @@ import '../tripfriends/plan/plan_request_view.dart';
 import '../components/bottom_navigator.dart';
 import 'banner/banner_widget.dart';
 import 'main_tab_bar.dart';
-import 'help_link_container.dart';
 import '../workmate_main/workmate_main_screen.dart';
 import '../talk_main/talk_main_screen.dart';
 import '../info_main/info_main_screen.dart';
@@ -37,12 +36,7 @@ class _MainPageState extends State<MainPage> {
   Widget _getSelectedContent() {
     switch (_selectedTab) {
       case 0:
-        return Column(
-          children: [
-            const HelpLinkContainer(),
-            PlanRequestView(),
-          ],
-        );
+        return PlanRequestView();
       case 1:
         return WorkmateMainScreen();
       case 2:
@@ -67,7 +61,7 @@ class _MainPageState extends State<MainPage> {
             width: double.infinity,
             height: MediaQuery.of(context).size.height * 0.45,
             decoration: ShapeDecoration(
-              color: const Color(0xFF4050FF),
+              color: const Color(0xFF5963D0),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(80),

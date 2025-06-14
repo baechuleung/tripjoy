@@ -33,16 +33,16 @@ class FriendsProfileItem extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Row(
-            children: [
-              _ProfileImage(friends: friends),
-              const SizedBox(width: 12),
-              Expanded(child: _FriendsInfo(
-                  friends: friends,
-                  currencySymbol: currencySymbol,
-                  numberFormat: numberFormat
-              )),
-            ],
+          SizedBox(
+            height: 120,
+            width: double.infinity,
+            child: _ProfileImage(friends: friends),
+          ),
+          const SizedBox(height: 2),
+          _FriendsInfo(
+              friends: friends,
+              currencySymbol: currencySymbol,
+              numberFormat: numberFormat
           ),
         ],
       ),
@@ -57,23 +57,24 @@ class _ProfileImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 이미지 URL 가져오기 (다양한 필드명에 대응)
-    final String uid = friends['uid'] ?? friends['id'] ?? 'unknown';
-
-    return Stack(
-      children: [
-        Container(
-          width: 70,
-          height: 80,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            image: DecorationImage(
-              image: _getProfileImage(),
-              fit: BoxFit.cover,
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: Image(
+        image: _getProfileImage(),
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            color: Colors.grey[300],
+            child: const Icon(
+              Icons.person,
+              color: Colors.grey,
+              size: 40,
             ),
-          ),
-        ),
-      ],
+          );
+        },
+      ),
     );
   }
 
@@ -111,18 +112,13 @@ class _FriendsInfo extends StatefulWidget {
 
 class _FriendsInfoState extends State<_FriendsInfo> {
   final TranslationService _translationService = TranslationService();
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final NumberFormat _numberFormat = NumberFormat('#,###');
   bool _isTranslationsLoaded = false;
   bool _isDisposed = false;
-  int _reviewCount = 0;
-  List<String> _translatedLanguages = [];
 
   @override
   void initState() {
     super.initState();
     _loadTranslations();
-    _loadCounts();
   }
 
   Future<void> _loadTranslations() async {
@@ -130,67 +126,33 @@ class _FriendsInfoState extends State<_FriendsInfo> {
     await _translationService.loadTranslations();
 
     if (mounted && !_isDisposed) {
-      // 언어 데이터 가져오기 및 번역
-      List<String> languages = [];
-      final List<dynamic> languagesList = widget.friends['languages'] ?? [];
-
-      for (final language in languagesList) {
-        if (language != null) {
-          String translatedLanguage = _translationService.getTranslatedText(language.toString());
-          languages.add(translatedLanguage);
-        }
-      }
-
       setState(() {
         _isTranslationsLoaded = true;
-        _translatedLanguages = languages;
       });
     }
   }
 
-  Future<void> _loadCounts() async {
-    if (_isDisposed) return;
+  int _calculateAgeFromValues(int year, int month, int day) {
+    if (year <= 0 || month <= 0 || day <= 0) return 0;
 
-    try {
-      final uid = widget.friends['uid'] ?? widget.friends['id'];
-      if (uid == null) {
-        debugPrint('⚠️ 사용자 ID를 찾을 수 없음');
-        return;
-      }
+    final now = DateTime.now();
+    final birthDate = DateTime(year, month, day);
 
-      final userRef = _firestore.collection('tripfriends_users').doc(uid);
+    int age = now.year - birthDate.year;
 
-      // 리뷰 문서들 가져오기
-      final reviewsSnapshot = await userRef.collection('reviews').get();
-
-      if (reviewsSnapshot.docs.isNotEmpty && mounted && !_isDisposed) {
-        // 리뷰 수 설정
-        setState(() {
-          _reviewCount = reviewsSnapshot.docs.length;
-        });
-
-        // 평균 평점 계산
-        double totalRating = 0;
-        for (var doc in reviewsSnapshot.docs) {
-          final rating = doc.data()['rating'];
-          if (rating is num) {
-            totalRating += rating.toDouble();
-          }
-        }
-        double averageRating = totalRating / reviewsSnapshot.docs.length;
-
-        try {
-          // 평균 평점 업데이트
-          await userRef.update({
-            'average_rating': double.parse(averageRating.toStringAsFixed(1))
-          });
-        } catch (e) {
-          debugPrint('⚠️ 평점 업데이트 실패: $e');
-        }
-      }
-    } catch (e) {
-      debugPrint('⚠️ 카운트 로딩 오류: $e');
+    // 생일이 지나지 않았으면 1살 빼기
+    if (now.month < birthDate.month ||
+        (now.month == birthDate.month && now.day < birthDate.day)) {
+      age--;
     }
+
+    return age;
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
   }
 
   @override
@@ -253,132 +215,39 @@ class _FriendsInfoState extends State<_FriendsInfo> {
       gender = genderEn;
     }
 
-    // 평점 안전하게 가져오기
-    final rating = widget.friends['average_rating'];
-    final ratingDisplay = rating != null ? '$rating/5' : '0/5';
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // 첫 번째 줄: 이름
-        Text(
-          name,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF1A1A1A),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 이름
+          SizedBox(
+            width: double.infinity,
+            child: Text(
+              name,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF1A1A1A),
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.left,
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
+          const SizedBox(height: 2),
 
-        // 두 번째 줄: 별점, 나이(성별)
-        Row(
-          children: [
-            // 별점 표시
-            const Icon(Icons.star, size: 14, color: Color(0xFFFFD233)),
-            const SizedBox(width: 2),
-            Text(
-              ratingDisplay,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Color(0xFF666666),
-              ),
+          // 나이(성별)
+          Text(
+            '$age세($gender)',
+            style: const TextStyle(
+              fontSize: 11,
+              color: Color(0xFF666666),
             ),
-            Text(
-              ' (${_numberFormat.format(_reviewCount)})',
-              style: const TextStyle(
-                fontSize: 12,
-                color: Color(0xFF666666),
-              ),
-            ),
-            const SizedBox(width: 8),
-
-            // 나이(성별)
-            Text(
-              '$age세($gender)',
-              style: const TextStyle(
-                fontSize: 12,
-                color: Color(0xFF666666),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-
-        // 세 번째 줄: 언어 (컨테이너 스타일)
-        if (_translatedLanguages.isNotEmpty)
-          Wrap(
-            spacing: 5,
-            runSpacing: 5,
-            children: _translatedLanguages.map((language) =>
-                Container(
-                  padding: const EdgeInsets.all(5),
-                  decoration: ShapeDecoration(
-                    color: const Color(0xFFE8F2FF),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        language,
-                        style: const TextStyle(
-                          color: Color(0xFF3182F6),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-            ).toList(),
-          )
-        else
-          Row(
-            children: [
-              const Icon(Icons.language, size: 14, color: Color(0xFF009688)),
-              const SizedBox(width: 4),
-              Text(
-                '언어 정보 없음',
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: Color(0xFF1A1A1A),
-                ),
-              ),
-            ],
           ),
-      ],
+        ],
+      ),
     );
-  }
-
-  @override
-  void dispose() {
-    _isDisposed = true;
-    super.dispose();
-  }
-
-  // 새로운 메서드: 년, 월, 일 값으로부터 나이 계산
-  int _calculateAgeFromValues(int year, int month, int day) {
-    try {
-      if (year <= 0 || month <= 0 || day <= 0) {
-        return 0;
-      }
-
-      final now = DateTime.now();
-      final birth = DateTime(year, month, day);
-
-      int age = now.year - birth.year;
-      if (now.month < birth.month ||
-          (now.month == birth.month && now.day < birth.day)) {
-        age--;
-      }
-      return age > 0 ? age : 0;
-    } catch (e) {
-      debugPrint('⚠️ 나이 계산 오류: $e');
-      return 0;
-    }
   }
 }
