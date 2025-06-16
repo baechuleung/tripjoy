@@ -37,8 +37,8 @@ class PlanRequestController {
   // 국가 리스트
   final List<Map<String, String>> countries = [
     {'code': 'KR', 'name': '대한민국', 'flag': '🇰🇷'},
-    {'code': 'JP', 'name': '일본', 'flag': '🇯🇵'},
     {'code': 'VN', 'name': '베트남', 'flag': '🇻🇳'},
+    {'code': 'JP', 'name': '일본', 'flag': '🇯🇵'},
     {'code': 'TH', 'name': '태국', 'flag': '🇹🇭'},
     {'code': 'PH', 'name': '필리핀', 'flag': '🇵🇭'},
   ];

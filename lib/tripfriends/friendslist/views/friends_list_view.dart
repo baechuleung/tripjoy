@@ -205,7 +205,7 @@ class _FriendsListViewState extends State<FriendsListView> {
                               right: index == 2 ? 0 : 5,
                             ),
                             child: AspectRatio(
-                              aspectRatio: 0.65,
+                              aspectRatio: 0.60,
                               child: FriendsListItem(
                                 friends: friend,
                                 onTap: () => _navigateToDetail(friend),
@@ -232,7 +232,7 @@ class _FriendsListViewState extends State<FriendsListView> {
                     padding: const EdgeInsets.only(top: 10),
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,
-                      childAspectRatio: 0.65,
+                      childAspectRatio: 0.60,
                       crossAxisSpacing: 10,
                       mainAxisSpacing: 10,
                     ),
