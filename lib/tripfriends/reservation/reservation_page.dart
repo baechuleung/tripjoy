@@ -5,7 +5,7 @@ import 'reservation_info_section.dart';
 import 'payment_amount_section.dart';
 import 'widgets/agreement_checkbox_widget.dart';
 import 'dart:async';
-import 'package:tripjoy/components/side_drawer/mypage/reservation/reservation_page.dart';
+import 'package:tripjoy/mypage/reservation/reservation_page.dart';
 
 class ReservationPage extends StatefulWidget {
   final String reservationId;

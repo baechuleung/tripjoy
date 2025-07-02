@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tripjoy/chat/screens/chat_screen.dart';
 import 'message_handler.dart';
+import '../fcm_service.dart';
 
 class ChatHandler {
   // 대기 중인 채팅 메시지를 저장할 정적 변수
@@ -36,6 +37,9 @@ class ChatHandler {
 
     _isInChatScreen = true;
     print('💬 [채팅] 현재 채팅방 설정: userId=$userId, friendId=$friendId, chatId=$_currentChatId');
+
+    // 채팅방 진입 시 iOS 배지 클리어
+    FCMService.clearBadge();
 
     // Firestore에 현재 활성 채팅방 정보 저장 (서버에서 확인 가능하도록)
     if (_currentChatId != null) {

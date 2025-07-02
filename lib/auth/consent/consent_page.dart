@@ -6,7 +6,7 @@ import '../../term/term_third_party.dart';
 import '../../term/term_location.dart';
 import '../../term/term_marketing.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../user_info_input_screen.dart';
+import '../user_info/screen/user_info_input_screen.dart';
 
 class ConsentPage extends StatefulWidget {
   final UserCredential userCredential;

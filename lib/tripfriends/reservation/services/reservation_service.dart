@@ -3,7 +3,7 @@ import '../models/reservation_result.dart';
 import 'package:flutter/material.dart';
 import '../utils/formatter_utils.dart';
 import '../services/reservation_info_service.dart';
-import '../widgets/confirmation_dialog.dart';
+import '../widgets/showdialog/confirmation_dialog.dart';
 
 class ReservationService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

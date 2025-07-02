@@ -31,7 +31,7 @@ class PaymentHandler {
     await firestore
         .collection('users')
         .doc(currentUser.uid)
-        .collection('point_history')
+        .collection('points_history')
         .add({
       'amount': package.points,
       'type': 'charge',

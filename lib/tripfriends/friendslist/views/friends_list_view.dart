@@ -9,7 +9,6 @@ import '../widgets/loading_spinner.dart';
 import '../widgets/friends_list_item.dart';
 import '../../detail/screens/friends_detail_page.dart';
 import 'friends_filter_bottom_sheet.dart';
-import '../widgets/ad_banner_widget.dart';
 
 class FriendsListView extends StatefulWidget {
   final List<String>? friendUserIds;
@@ -219,10 +218,6 @@ class _FriendsListViewState extends State<FriendsListView> {
                     },
                   ),
                 ),
-
-                // 광고 배너
-                if (manager.displayFriends.length > 3)
-                  const AdBannerWidget(),
 
                 // 나머지 아이템들 (3번 인덱스부터)
                 if (manager.displayFriends.length > 3)

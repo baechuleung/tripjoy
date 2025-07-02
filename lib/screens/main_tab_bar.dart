@@ -30,9 +30,9 @@ class MainTabBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           _buildTabItem(context, 0, 'assets/main/tab/travel.png', '트립프렌즈'),
-          _buildTabItem(context, 1, 'assets/main/tab/job.png', '워크메이트'),
-          _buildTabItem(context, 2, 'assets/main/tab/talk.png', '현지톡톡'),
-          _buildTabItem(context, 3, 'assets/main/tab/info.png', '실시간정보'),
+          _buildTabItem(context, 1, 'assets/main/tab/triprace.png', '트립레이스'),
+          _buildTabItem(context, 2, 'assets/main/tab/job.png', '워크메이트'),
+          _buildTabItem(context, 3, 'assets/main/tab/talk.png', '실시간톡톡'),
         ],
       ),
     );
@@ -51,8 +51,8 @@ class MainTabBar extends StatelessWidget {
             children: [
               Image.asset(
                 iconPath,
-                width: 36,
-                height: 36,
+                width: 40,
+                height: 40,
               ),
               const SizedBox(height: 4),
               Text(
@@ -61,7 +61,7 @@ class MainTabBar extends StatelessWidget {
                   color: isSelected ? const Color(0xFF5963D0) : const Color(0xFF1B1C1F),
                   fontSize: 13,
                   fontFamily: 'Spoqa Han Sans Neo',
-                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
                 ),
                 maxLines: 2,
                 textAlign: TextAlign.center,

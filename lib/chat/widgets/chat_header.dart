@@ -1,6 +1,7 @@
 // lib/chat/widgets/chat_header.dart
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:tripjoy/tripfriends/detail/screens/friends_detail_page.dart';
 import 'chat_popup_menu.dart';
 
@@ -19,6 +20,26 @@ class ChatHeader extends StatelessWidget implements PreferredSizeWidget {
     required this.friendsName,
     this.friendsImage,
   }) : super(key: key);
+
+  // 채팅 타입 가져오기
+  Future<String> _getChatType() async {
+    try {
+      final database = FirebaseDatabase.instance;
+      database.databaseURL = 'https://tripjoy-d309f-default-rtdb.asia-southeast1.firebasedatabase.app/';
+
+      final snapshot = await database.ref().child('chat/$chatId/info/type').get();
+
+      if (snapshot.exists && snapshot.value != null) {
+        final type = snapshot.value.toString();
+        return type == 'workmate' ? '워크메이트' : '트립프렌즈';
+      }
+
+      return '트립프렌즈'; // 기본값
+    } catch (e) {
+      print('채팅 타입 가져오기 오류: $e');
+      return '트립프렌즈'; // 오류 시 기본값
+    }
+  }
 
   // 프렌즈 상세 페이지로 이동
   Future<void> _navigateToFriendsDetailPage(BuildContext context) async {
@@ -107,12 +128,22 @@ class ChatHeader extends StatelessWidget implements PreferredSizeWidget {
                   friendsName,
                   style: const TextStyle(color: Colors.black, fontSize: 16),
                 ),
-                const Text(
-                  '프렌즈',
-                  style: TextStyle(
-                    color: const Color(0xFF3182F6),
-                    fontSize: 12,
-                  ),
+                FutureBuilder<String>(
+                  future: _getChatType(),
+                  builder: (context, snapshot) {
+                    final chatTypeText = snapshot.data ?? '트립프렌즈';
+                    final textColor = chatTypeText == '워크메이트'
+                        ? const Color(0xFFF67531)
+                        : const Color(0xFF3182F6);
+
+                    return Text(
+                      chatTypeText,
+                      style: TextStyle(
+                        color: textColor,
+                        fontSize: 12,
+                      ),
+                    );
+                  },
                 ),
               ],
             ),

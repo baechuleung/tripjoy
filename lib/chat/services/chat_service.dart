@@ -208,6 +208,39 @@ class ChatService {
     });
   }
 
+  // 채팅 타입 가져오기 함수 추가
+  Future<String?> getChatType(String userId, String friendsId) async {
+    try {
+      final String chatId = getChatId(userId, friendsId);
+      final snapshot = await _database.ref().child('chat/$chatId/info/type').get();
+
+      if (snapshot.exists && snapshot.value != null) {
+        return snapshot.value.toString();
+      }
+
+      return null;
+    } catch (e) {
+      print('채팅 타입 가져오기 오류: $e');
+      return null;
+    }
+  }
+
+  // 채팅 ID로 타입 가져오기 함수 추가
+  Future<String?> getChatTypeById(String chatId) async {
+    try {
+      final snapshot = await _database.ref().child('chat/$chatId/info/type').get();
+
+      if (snapshot.exists && snapshot.value != null) {
+        return snapshot.value.toString();
+      }
+
+      return null;
+    } catch (e) {
+      print('채팅 타입 가져오기 오류: $e');
+      return null;
+    }
+  }
+
   // 예약 상태 확인 함수 추가 (chat_screen.dart에서 이동)
   Future<bool> checkReservationStatus(String friendsId) async {
     try {

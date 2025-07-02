@@ -9,6 +9,7 @@ class ChatListItem {
   final int timestamp;           // 원본 타임스탬프 (밀리초)
   final int unreadCount;         // 읽지 않은 메시지 수
   final bool isBlocked;          // 차단 여부
+  final String? type;            // 채팅 타입 (friends, workmate)
 
   ChatListItem({
     required this.chatId,
@@ -20,6 +21,7 @@ class ChatListItem {
     required this.timestamp,
     required this.unreadCount,
     required this.isBlocked,
+    this.type,
   });
 
   // 프로필 이미지가 있는지 확인

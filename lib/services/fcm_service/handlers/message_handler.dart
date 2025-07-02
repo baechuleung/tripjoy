@@ -7,6 +7,7 @@ import '../config/android_config.dart';
 import '../config/ios_config.dart';
 import 'reservation_handler.dart';
 import 'chat_handler.dart';
+import '../fcm_service.dart';
 
 // 전역 내비게이터 키 (앱 어디서나 내비게이션 접근 가능)
 final GlobalKey<NavigatorState> messageHandlerNavigatorKey = GlobalKey<NavigatorState>();
@@ -15,6 +16,13 @@ final GlobalKey<NavigatorState> messageHandlerNavigatorKey = GlobalKey<Navigator
 @pragma('vm:entry-point')
 Future<void> firebaseBackgroundMessageHandler(RemoteMessage message) async {
   print('🔔 백그라운드 메시지 수신: ${message.notification?.title}');
+
+  // 백그라운드에서 메시지를 받으면 배지 수 증가
+  if (Platform.isIOS) {
+    // 백그라운드에서는 FCMService를 직접 사용할 수 없으므로
+    // 다음에 앱이 열릴 때 처리하도록 함
+    print('🔔 백그라운드 메시지 - 배지 업데이트는 앱 시작 시 처리');
+  }
 }
 
 class MessageHandler {
@@ -56,6 +64,9 @@ class MessageHandler {
       print('🔔 [onMessageOpenedApp] 알림을 통해 앱 열림: ${message.notification?.title}');
       print('🔍 [onMessageOpenedApp] 메시지 데이터: ${message.data}');
 
+      // 알림을 클릭하여 앱을 열었으므로 배지 클리어
+      FCMService.clearBadge();
+
       if (message.data.isNotEmpty) {
         print('👆 알림 클릭 처리 시작 (onMessageOpenedApp)');
         handleNotificationClick(message.data);
@@ -67,6 +78,9 @@ class MessageHandler {
     if (initialMessage != null) {
       print('🔔 [initialMessage] 종료 상태에서 알림으로 앱 실행됨: ${initialMessage.notification?.title}');
       print('🔍 [initialMessage] 초기 메시지 데이터: ${initialMessage.data}');
+
+      // 알림을 클릭하여 앱을 열었으므로 배지 클리어
+      await FCMService.clearBadge();
 
       if (initialMessage.data.isNotEmpty) {
         Future.delayed(const Duration(seconds: 2), () {
@@ -84,6 +98,9 @@ class MessageHandler {
   // 알림 탭 핸들러
   static void onNotificationResponse(NotificationResponse response) {
     print('👆 [onNotificationResponse] 알림 클릭됨: ${response.payload}');
+
+    // 알림 클릭 시 배지 클리어
+    FCMService.clearBadge();
 
     if (response.payload != null && response.payload!.isNotEmpty) {
       try {
@@ -177,8 +194,28 @@ class MessageHandler {
 
       // 다른 채팅방의 메시지이거나 채팅방에 없는 경우 처리
       ChatHandler.processChatMessage(message.data);
+
+      // iOS에서 배지 수 증가
+      if (Platform.isIOS) {
+        FCMService.incrementBadgeCount();
+      }
     } else if (type == 'reservation_in_progress') {
       ReservationHandler.processReservationRequest(message.data);
+
+      // iOS에서 배지 수 증가
+      if (Platform.isIOS) {
+        FCMService.incrementBadgeCount();
+      }
+    } else {
+      // 기타 알림 타입도 배지 증가
+      if (Platform.isIOS) {
+        FCMService.incrementBadgeCount();
+      }
     }
+  }
+
+  // iOS 배지 클리어 (더 이상 직접 사용하지 않음, FCMService 사용)
+  static void _clearIOSBadge() {
+    FCMService.clearBadge();
   }
 }

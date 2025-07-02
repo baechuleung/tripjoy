@@ -278,25 +278,25 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 16),
-                Center(
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => EmailSignUpScreen()),
-                      );
-                    },
-                    child: Text(
-                      '계정이 없으신가요? 회원가입',
-                      style: TextStyle(
-                        color: Color(0xFF4CAF50),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
+                // SizedBox(height: 16),
+                // Center(
+                //   child: TextButton(
+                //     onPressed: () {
+                //       Navigator.push(
+                //         context,
+                //         MaterialPageRoute(builder: (context) => EmailSignUpScreen()),
+                //       );
+                //     },
+                //     child: Text(
+                //       '계정이 없으신가요? 회원가입',
+                //       style: TextStyle(
+                //         color: Color(0xFF4CAF50),
+                //         fontSize: 14,
+                //         fontWeight: FontWeight.w500,
+                //       ),
+                //     ),
+                //   ),
+                // ),
               ],
             ),
           ),

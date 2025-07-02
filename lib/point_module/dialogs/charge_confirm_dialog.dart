@@ -7,16 +7,19 @@ import '../models/point_package.dart';
 class ChargeConfirmDialog extends StatelessWidget {
   final PointPackage package;
   final VoidCallback onConfirm;
+  final int points; // DB의 현재 포인트
 
   const ChargeConfirmDialog({
     super.key,
     required this.package,
     required this.onConfirm,
+    this.points = 0,
   });
 
   @override
   Widget build(BuildContext context) {
     final numberFormat = NumberFormat('#,###');
+    final totalPoints = points + package.points;
 
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -43,102 +46,116 @@ class ChargeConfirmDialog extends StatelessWidget {
           children: <Widget>[
             // 제목
             const Text(
-              '포인트 충전하기',
+              '포인트를 충전하시겠습니까?',
               style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: Color(0xFF353535),
+                fontSize: 16,
+                fontFamily: 'Pretendard',
+                fontWeight: FontWeight.w700,
+                height: 1.20,
               ),
             ),
             const SizedBox(height: 16),
 
             // 충전 정보
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF0F7FF),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: const Color(0xFFD6E9FF),
-                  width: 1,
+            Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      '충전 포인트',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Color(0xFF4E5968),
+                        fontSize: 14,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Text(
+                      '+ ${numberFormat.format(package.points)}P',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Color(0xFF4E5968),
+                        fontSize: 14,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        '충전 포인트',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Color(0xFF666666),
-                        ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      '합계 포인트',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Color(0xFF353535),
+                        fontSize: 14,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w700,
                       ),
-                      Text(
-                        '${numberFormat.format(package.points)}P',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF237AFF),
-                        ),
+                    ),
+                    Text(
+                      '${numberFormat.format(totalPoints)}P',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Color(0xFF353535),
+                        fontSize: 14,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w700,
                       ),
-                    ],
+                    ),
+                  ],
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: CustomPaint(
+                    size: Size(double.infinity, 1),
+                    painter: DottedLinePainter(),
                   ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8),
-                    child: Divider(color: Color(0xFFE0E0E0)),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        '결제 금액',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Color(0xFF666666),
-                        ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      '현재 결제금액',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Color(0xFF353535),
+                        fontSize: 14,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w700,
                       ),
-                      Text(
-                        '₩${numberFormat.format(package.price)}',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF333333),
-                        ),
+                    ),
+                    Text(
+                      '₩${numberFormat.format(package.price)}',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Color(0xFF3182F6),
+                        fontSize: 14,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w700,
                       ),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                  ],
+                ),
+              ],
             ),
             const SizedBox(height: 16),
 
             // 안내 문구
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF5F5F5),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.info_outline,
-                    size: 16,
-                    color: Colors.grey[600],
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      '충전된 포인트를 사용할 경우\n환불되지 않습니다',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey[700],
-                      ),
-                    ),
-                  ),
-                ],
+            const Text(
+              '※ 충전된 포인트를 사용할 경우 환불되지 않습니다',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Color(0xFF999999),
+                fontSize: 12,
+                fontFamily: 'Pretendard',
+                fontWeight: FontWeight.w500,
               ),
             ),
 
@@ -146,26 +163,31 @@ class ChargeConfirmDialog extends StatelessWidget {
 
             // 버튼 영역
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
                 // 취소 버튼
                 Expanded(
-                  child: OutlinedButton(
-                    onPressed: () {
+                  child: GestureDetector(
+                    onTap: () {
                       Navigator.of(context).pop();
                     },
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: Colors.grey.shade300),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      height: 42,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                      decoration: ShapeDecoration(
+                        color: const Color(0xFFF6F6F6),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                    child: const Text(
-                      '취소',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.w500,
+                      child: Center(
+                        child: Text(
+                          '취소',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: const Color(0xFF4E5968),
+                            fontSize: 14,
+                            fontFamily: 'Pretendard',
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -174,24 +196,29 @@ class ChargeConfirmDialog extends StatelessWidget {
 
                 // 충전하기 버튼
                 Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
+                  child: GestureDetector(
+                    onTap: () {
                       Navigator.of(context).pop();
                       onConfirm();
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF237AFF),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      height: 42,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                      decoration: ShapeDecoration(
+                        color: const Color(0xFFE8F2FF),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      elevation: 0,
-                    ),
-                    child: const Text(
-                      '충전하기',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w500,
+                      child: Center(
+                        child: Text(
+                          '충전하기',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: const Color(0xFF3182F6),
+                            fontSize: 14,
+                            fontFamily: 'Pretendard',
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -208,6 +235,7 @@ class ChargeConfirmDialog extends StatelessWidget {
     required BuildContext context,
     required PointPackage package,
     required VoidCallback onConfirm,
+    int points = 0, // DB의 현재 포인트
   }) {
     return showDialog(
       context: context,
@@ -216,8 +244,37 @@ class ChargeConfirmDialog extends StatelessWidget {
         return ChargeConfirmDialog(
           package: package,
           onConfirm: onConfirm,
+          points: points,
         );
       },
     );
   }
+}
+
+// 점선 그리기를 위한 CustomPainter
+class DottedLinePainter extends CustomPainter {
+  const DottedLinePainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFFE0E0E0)
+      ..strokeWidth = 1.0;
+
+    const dashWidth = 5.0;
+    const dashSpace = 3.0;
+    double startX = 0;
+
+    while (startX < size.width) {
+      canvas.drawLine(
+        Offset(startX, 0),
+        Offset(startX + dashWidth, 0),
+        paint,
+      );
+      startX += dashWidth + dashSpace;
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

@@ -13,7 +13,7 @@ class PaymentConstants {
     return {};
   }
 
-  // Google Play 상품 ID
+  // Android 상품 ID
   static const androidProducts = {
     'points_10000': 'com.leapcompany.tripjoy.points_10000',
     'points_20000': 'com.leapcompany.tripjoy.points_20000',
@@ -32,6 +32,5 @@ class PaymentConstants {
   };
 
   // 기타 설정
-  static const bool enableSandbox = true; // 개발 중에는 true
   static const int maxRetryAttempts = 3;
 }

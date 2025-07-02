@@ -5,8 +5,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 
-class HistoryTabView extends StatelessWidget {
+class HistoryTabView extends StatefulWidget {
   const HistoryTabView({super.key});
+
+  @override
+  State<HistoryTabView> createState() => _HistoryTabViewState();
+}
+
+class _HistoryTabViewState extends State<HistoryTabView> {
+  String _selectedFilter = '전체';
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +28,7 @@ class HistoryTabView extends StatelessWidget {
       stream: FirebaseFirestore.instance
           .collection('users')
           .doc(currentUser.uid)
-          .collection('point_history')
+          .collection('points_history')
           .orderBy('createdAt', descending: true)
           .limit(50)
           .snapshots(),
@@ -42,82 +49,148 @@ class HistoryTabView extends StatelessWidget {
           );
         }
 
-        return ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: snapshot.data!.docs.length,
-          itemBuilder: (context, index) {
-            final doc = snapshot.data!.docs[index];
-            final data = doc.data() as Map<String, dynamic>;
-            final amount = data['amount'] ?? 0;
-            final isCharge = amount > 0;
-            final timestamp = data['createdAt'] as Timestamp?;
-            final date = timestamp?.toDate() ?? DateTime.now();
+        // 필터링된 데이터
+        final allDocs = snapshot.data!.docs;
+        final filteredDocs = allDocs.where((doc) {
+          final data = doc.data() as Map<String, dynamic>;
+          final amount = data['amount'] ?? 0;
 
-            return Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+          if (_selectedFilter == '전체') return true;
+          if (_selectedFilter == '충전') return amount > 0;
+          if (_selectedFilter == '사용') return amount < 0;
+          return true;
+        }).toList();
+
+        return Container(
+          color: Colors.white,
+          child: Column(
+            children: [
+              // 필터 버튼
+              Container(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    _buildFilterButton('전체'),
+                    const SizedBox(width: 8),
+                    _buildFilterButton('충전'),
+                    const SizedBox(width: 8),
+                    _buildFilterButton('사용'),
+                  ],
+                ),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        data['description'] ?? (isCharge ? '포인트 충전' : '포인트 사용'),
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF353535),
-                        ),
+              // 리스트
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Container(
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                      itemCount: filteredDocs.length,
+                      separatorBuilder: (context, index) => const Divider(
+                        color: Color(0xFFECECEC),
+                        thickness: 1,
+                        height: 1,
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        DateFormat('yyyy.MM.dd HH:mm').format(date),
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF999999),
-                        ),
-                      ),
-                    ],
+                      itemBuilder: (context, index) {
+                        final doc = filteredDocs[index];
+                        final data = doc.data() as Map<String, dynamic>;
+                        final amount = data['amount'] ?? 0;
+                        final isCharge = amount > 0;
+                        final timestamp = data['createdAt'] as Timestamp?;
+                        final date = timestamp?.toDate() ?? DateTime.now();
+
+                        return Container(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    DateFormat('yyyy.MM.dd HH:mm').format(date),
+                                    style: const TextStyle(
+                                      color: Color(0xFF999999),
+                                      fontSize: 14,
+                                      fontFamily: 'Pretendard',
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    data['description'] ?? (isCharge ? '포인트 충전' : '포인트 사용'),
+                                    style: const TextStyle(
+                                      color: Color(0xFF4E5968),
+                                      fontSize: 14,
+                                      fontFamily: 'Pretendard',
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                '${isCharge ? '+' : ''}${numberFormat.format(amount)} P',
+                                style: TextStyle(
+                                  color: isCharge ? const Color(0xFF3182F6) : const Color(0xFF999999),
+                                  fontSize: 16,
+                                  fontFamily: 'Pretendard',
+                                  fontWeight: FontWeight.w700,
+                                  height: isCharge ? null : 1.20,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        '${isCharge ? '+' : ''}${numberFormat.format(amount)} P',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: isCharge ? const Color(0xFF4CAF50) : const Color(0xFFFF3E6C),
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '잔액 ${numberFormat.format(data['balance'] ?? 0)} P',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF999999),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                ),
               ),
-            );
-          },
+            ],
+          ),
         );
       },
+    );
+  }
+
+  Widget _buildFilterButton(String text) {
+    final isSelected = _selectedFilter == text;
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedFilter = text;
+        });
+      },
+      child: Container(
+        height: 24,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: ShapeDecoration(
+          color: isSelected ? const Color(0xFF4047ED) : Colors.transparent,
+          shape: RoundedRectangleBorder(
+            side: isSelected
+                ? BorderSide.none
+                : const BorderSide(
+              width: 1,
+              color: Color(0xFFE2E2E2),
+            ),
+            borderRadius: BorderRadius.circular(20),
+          ),
+        ),
+        child: Center(
+          child: Text(
+            text,
+            style: TextStyle(
+              color: isSelected ? Colors.white : const Color(0xFF353535),
+              fontSize: 13,
+              fontFamily: 'Pretendard',
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

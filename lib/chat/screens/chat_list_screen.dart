@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/chat_list_item.dart';
 import '../controllers/chat_list_controller.dart';
 import 'chat_screen.dart';
-import 'package:tripjoy/components/bottom_navigator.dart';
+import 'package:tripjoy/components/tripfriends_bottom_navigator.dart';
 import '../widgets/loading_spinner.dart'; // 로딩 스피너 import 추가
 
 class ChatListScreen extends StatefulWidget {
@@ -184,7 +184,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigator(
+      bottomNavigationBar: TripfriendsBottomNavigator(
         currentIndex: _currentIndex,
         onTap: (index) {},
         scaffoldKey: _scaffoldKey,
@@ -326,16 +326,30 @@ class _ChatListScreenState extends State<ChatListScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // 프렌즈 이름
-                            Text(
-                              item.friendsName,
-                              style: TextStyle(
-                                fontWeight: item.unreadCount > 0
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                                fontSize: 15,
-                                color: item.isBlocked ? Colors.grey : Colors.black,
-                              ),
+                            // 타입과 프렌즈 이름
+                            Row(
+                              children: [
+                                // 채팅 타입 배지
+                                if (item.type != null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 8.0),
+                                    child: _buildChatTypeBadge(item.type!),
+                                  ),
+                                // 프렌즈 이름
+                                Expanded(
+                                  child: Text(
+                                    item.friendsName,
+                                    style: TextStyle(
+                                      fontWeight: item.unreadCount > 0
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                      fontSize: 15,
+                                      color: item.isBlocked ? Colors.grey : Colors.black,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
                             ),
                             const SizedBox(height: 4),
 
@@ -406,7 +420,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                                 vertical: 2,
                               ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF00897B),
+                                color: const Color(0xFFFF3E6C),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
@@ -519,5 +533,55 @@ class _ChatListScreenState extends State<ChatListScreen> {
     );
 
     return result;
+  }
+
+  // 채팅 타입 배지 위젯
+  Widget _buildChatTypeBadge(String chatType) {
+    if (chatType == 'friends') {
+      return Container(
+        height: 24,
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        decoration: ShapeDecoration(
+          color: const Color(0xFFE8F2FF),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5),
+          ),
+        ),
+        child: Center(
+          child: Text(
+            '트립프렌즈',
+            style: TextStyle(
+              color: const Color(0xFF3182F6),
+              fontSize: 12,
+              fontFamily: 'Pretendard',
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      );
+    } else if (chatType == 'workmate') {
+      return Container(
+        height: 24,
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        decoration: ShapeDecoration(
+          color: const Color(0xFFFFF2EA),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5),
+          ),
+        ),
+        child: Center(
+          child: Text(
+            '워크메이트',
+            style: TextStyle(
+              color: const Color(0xFFF67531),
+              fontSize: 12,
+              fontFamily: 'Pretendard',
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      );
+    }
+    return const SizedBox.shrink();
   }
 }

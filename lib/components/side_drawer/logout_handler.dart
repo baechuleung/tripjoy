@@ -26,33 +26,16 @@ class LogoutHandler extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    width: 70,
-                    height: 70,
-                    decoration: BoxDecoration(
-                      color: Colors.red[50],
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.logout_rounded,
-                      size: 40,
-                      color: Colors.red[600],
-                    ),
-                  ),
-                  SizedBox(height: 15),
-                  Text(
-                    '로그아웃',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                    ),
-                  ),
+
                   SizedBox(height: 10),
                   Text(
                     '정말 로그아웃 하시겠습니까?',
                     style: TextStyle(
+                      color: const Color(0xFF353535),
                       fontSize: 16,
-                      color: Colors.grey[700],
+                      fontFamily: 'Pretendard',
+                      fontWeight: FontWeight.w600,
+                      height: 1.50,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -61,23 +44,34 @@ class LogoutHandler extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       Expanded(
-                        child: TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop(); // 다이얼로그 닫기
-                          },
-                          style: TextButton.styleFrom(
-                            backgroundColor: Colors.grey[200],
+                        child: Container(
+                          decoration: ShapeDecoration(
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                              side: BorderSide(
+                                width: 1,
+                                color: const Color(0xFFE4E4E4),
+                              ),
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                            padding: EdgeInsets.symmetric(vertical: 12),
                           ),
-                          child: Text(
-                            '취소',
-                            style: TextStyle(
-                              color: Colors.grey[800],
-                              fontWeight: FontWeight.w500,
-                              fontSize: 16,
+                          child: TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(); // 다이얼로그 닫기
+                            },
+                            style: TextButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              padding: EdgeInsets.symmetric(vertical: 12),
+                            ),
+                            child: Text(
+                              '취소',
+                              style: TextStyle(
+                                color: const Color(0x7F14181F),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ),
                         ),
@@ -98,9 +92,10 @@ class LogoutHandler extends StatelessWidget {
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red[600],
-                            foregroundColor: Colors.white,
+                            backgroundColor: const Color(0xFFFFE8E8),
+                            foregroundColor: const Color(0xFFFF3E6C),
                             padding: EdgeInsets.symmetric(vertical: 12),
+                            elevation: 0,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -110,6 +105,7 @@ class LogoutHandler extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
+                              color: const Color(0xFFFF3E6C),
                             ),
                           ),
                         ),

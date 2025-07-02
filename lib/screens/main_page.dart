@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:tripjoy/components/side_drawer/user_drawer.dart';
+import 'package:tripjoy/components/side_drawer/drawer/user_drawer.dart';
 import 'footer_dec.dart';
 import '../tripfriends/plan/plan_request_view.dart';
-import '../components/bottom_navigator.dart';
+import '../components/tripfriends_bottom_navigator.dart';
 import 'banner/banner_widget.dart';
 import 'main_tab_bar.dart';
 import '../workmate_main/workmate_main_screen.dart';
-import '../talk_main/talk_main_screen.dart';
-import '../info_main/info_main_screen.dart';
+import '../live_board/live_board.dart';
+import '../triprace/triprace_main_screen.dart';
+import '../popup/popup_manager.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -20,6 +21,15 @@ class _MainPageState extends State<MainPage> {
   int _currentIndex = 0;
   int _selectedTab = 0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
+  void initState() {
+    super.initState();
+    // 화면 빌드 후 팝업 체크
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      PopupManager.checkAndShowPopups(context);
+    });
+  }
 
   void _onTabTapped(int index) {
     setState(() {
@@ -38,11 +48,11 @@ class _MainPageState extends State<MainPage> {
       case 0:
         return PlanRequestView();
       case 1:
-        return WorkmateMainScreen();
+        return TripraceMainScreen();
       case 2:
-        return TalkMainScreen();
+        return WorkmateMainScreen();
       case 3:
-        return InfoMainScreen();
+        return LiveBoard();
       default:
         return PlanRequestView();
     }
@@ -137,7 +147,7 @@ class _MainPageState extends State<MainPage> {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigator(
+      bottomNavigationBar: TripfriendsBottomNavigator(
         currentIndex: _currentIndex,
         onTap: _onTabTapped,
         scaffoldKey: _scaffoldKey,

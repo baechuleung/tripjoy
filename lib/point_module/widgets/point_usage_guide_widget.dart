@@ -1,5 +1,6 @@
 // lib/point_module/widgets/point_usage_guide_widget.dart
 
+import 'dart:io';
 import 'package:flutter/material.dart';
 
 class PointUsageGuideWidget extends StatelessWidget {
@@ -72,7 +73,9 @@ class PointUsageGuideWidget extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           _buildBulletPoint(
-            '환불을 원하실 경우, 구글 플레이스토어 또는 애플 앱스토어를 통해 환불이 가능 합니다.',
+            Platform.isIOS
+                ? '환불을 원하실 경우, 애플 앱스토어를 통해 환불이 가능합니다.'
+                : '환불을 원하실 경우, 구글 플레이스토어를 통해 환불이 가능합니다.',
           ),
         ],
       ),

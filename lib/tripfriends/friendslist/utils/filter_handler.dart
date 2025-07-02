@@ -68,32 +68,74 @@ class FilterHandler {
     switch (sortType) {
       case 'rating_high':
         sorted.sort((a, b) {
-          double ratingA = a['average_rating'] ?? 0.0;
-          double ratingB = b['average_rating'] ?? 0.0;
+          double ratingA = (a['average_rating'] is num) ? (a['average_rating'] as num).toDouble() : 0.0;
+          double ratingB = (b['average_rating'] is num) ? (b['average_rating'] as num).toDouble() : 0.0;
           return ratingB.compareTo(ratingA);
         });
         break;
 
       case 'rating_low':
         sorted.sort((a, b) {
-          double ratingA = a['average_rating'] ?? 0.0;
-          double ratingB = b['average_rating'] ?? 0.0;
+          double ratingA = (a['average_rating'] is num) ? (a['average_rating'] as num).toDouble() : 0.0;
+          double ratingB = (b['average_rating'] is num) ? (b['average_rating'] as num).toDouble() : 0.0;
           return ratingA.compareTo(ratingB);
         });
         break;
 
       case 'match_high':
         sorted.sort((a, b) {
-          int countA = a['match_count'] ?? 0;
-          int countB = b['match_count'] ?? 0;
+          // match_count 또는 matchCount 필드 확인
+          var countAValue = a['match_count'] ?? a['matchCount'] ?? 0;
+          var countBValue = b['match_count'] ?? b['matchCount'] ?? 0;
+
+          // 숫자로 변환
+          int countA = 0;
+          if (countAValue is int) {
+            countA = countAValue;
+          } else if (countAValue is num) {
+            countA = countAValue.toInt();
+          } else if (countAValue is String) {
+            countA = int.tryParse(countAValue) ?? 0;
+          }
+
+          int countB = 0;
+          if (countBValue is int) {
+            countB = countBValue;
+          } else if (countBValue is num) {
+            countB = countBValue.toInt();
+          } else if (countBValue is String) {
+            countB = int.tryParse(countBValue) ?? 0;
+          }
+
           return countB.compareTo(countA);
         });
         break;
 
       case 'match_low':
         sorted.sort((a, b) {
-          int countA = a['match_count'] ?? 0;
-          int countB = b['match_count'] ?? 0;
+          // match_count 또는 matchCount 필드 확인
+          var countAValue = a['match_count'] ?? a['matchCount'] ?? 0;
+          var countBValue = b['match_count'] ?? b['matchCount'] ?? 0;
+
+          // 숫자로 변환
+          int countA = 0;
+          if (countAValue is int) {
+            countA = countAValue;
+          } else if (countAValue is num) {
+            countA = countAValue.toInt();
+          } else if (countAValue is String) {
+            countA = int.tryParse(countAValue) ?? 0;
+          }
+
+          int countB = 0;
+          if (countBValue is int) {
+            countB = countBValue;
+          } else if (countBValue is num) {
+            countB = countBValue.toInt();
+          } else if (countBValue is String) {
+            countB = int.tryParse(countBValue) ?? 0;
+          }
+
           return countA.compareTo(countB);
         });
         break;
@@ -104,20 +146,20 @@ class FilterHandler {
 
   /// 필터에서 정렬 타입 추출
   static String getSortTypeFromFilters(Map<String, Set<String>> filters) {
-    // 매칭 횟수 정렬 확인
-    final matchCountFilters = filters[FilterConstants.MATCH_COUNT];
-    if (matchCountFilters != null && matchCountFilters.isNotEmpty) {
-      final filter = matchCountFilters.first;
-      if (filter == '매칭 횟수 많은 순') return 'match_high';
-      if (filter == '매칭 횟수 적은 순') return 'match_low';
-    }
-
     // 별점 정렬 확인
     final ratingFilters = filters[FilterConstants.RATING];
     if (ratingFilters != null && ratingFilters.isNotEmpty) {
       final filter = ratingFilters.first;
       if (filter == '별점 높은 순') return 'rating_high';
       if (filter == '별점 낮은 순') return 'rating_low';
+    }
+
+    // 매칭 횟수 정렬 확인
+    final matchCountFilters = filters[FilterConstants.MATCH_COUNT];
+    if (matchCountFilters != null && matchCountFilters.isNotEmpty) {
+      final filter = matchCountFilters.first;
+      if (filter == '매칭 횟수 많은 순') return 'match_high';
+      if (filter == '매칭 횟수 적은 순') return 'match_low';
     }
 
     return 'none';

@@ -69,7 +69,7 @@ class FriendsRepository {
 
       // 데이터 yield
       for (var doc in snapshot.docs) {
-        final data = DataTransformer.transformDocument(doc);
+        final data = await DataTransformer.transformDocument(doc);
         yield data;
       }
 

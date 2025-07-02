@@ -62,7 +62,7 @@ class _SignUpCompleteScreenState extends State<SignUpCompleteScreen> {
         'birthDate': null,
         'gender': null,
         'language': currentLocale,
-        'points': 0,
+        'points': 3000,
         'usage_count': 0, // 회원가입 시 usage_count를 0으로 초기화
         'is_premium': true, // 회원가입 시 is_premium을 true로 설정
       };
@@ -87,7 +87,7 @@ class _SignUpCompleteScreenState extends State<SignUpCompleteScreen> {
         'birthDate': null,
         'gender': null,
         'language': currentLocale,
-        'points': 0,
+        'points': 3000,
         'usage_count': 0,
         'is_premium': true,
       };

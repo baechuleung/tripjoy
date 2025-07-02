@@ -4,10 +4,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 /// 친구 데이터 변환을 위한 유틸리티 클래스
 class DataTransformer {
   /// Firestore 문서를 친구 데이터 맵으로 변환
-  static Map<String, dynamic> transformDocument(DocumentSnapshot doc) {
+  static Future<Map<String, dynamic>> transformDocument(DocumentSnapshot doc) async {
     try {
       final data = doc.data() as Map<String, dynamic>;
-      return transformData(data, doc.id);
+      return await transformData(data, doc.id);
     } catch (e) {
       print('⚠️ 친구 데이터 변환 오류: $e');
       return _createEmptyFriendData(doc.id);
@@ -15,13 +15,30 @@ class DataTransformer {
   }
 
   /// 친구 데이터 정규화
-  static Map<String, dynamic> transformData(Map<String, dynamic> data, String docId) {
+  static Future<Map<String, dynamic>> transformData(Map<String, dynamic> data, String docId) async {
     // ID 설정
     data['id'] = docId;
     data['uid'] = data['uid'] ?? docId;
 
     // average_rating 정규화
     data['average_rating'] = _parseDouble(data['average_rating']);
+
+    // 완료된 예약 수 가져오기
+    try {
+      final uid = data['uid'] ?? docId;
+      final reservationsSnapshot = await FirebaseFirestore.instance
+          .collection('tripfriends_users')
+          .doc(uid)
+          .collection('reservations')
+          .where('status', isEqualTo: 'completed')
+          .count()
+          .get();
+
+      data['match_count'] = reservationsSnapshot.count ?? 0;
+    } catch (e) {
+      print('⚠️ 예약 수 가져오기 오류: $e');
+      data['match_count'] = 0;
+    }
 
     // isActive와 isApproved 기본값 설정
     if (!data.containsKey('isActive')) {
@@ -46,12 +63,24 @@ class DataTransformer {
     return 0.0;
   }
 
+  /// 안전한 int 파싱
+  static int _parseInt(dynamic value) {
+    if (value == null) return 0;
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    if (value is String) {
+      return int.tryParse(value) ?? 0;
+    }
+    return 0;
+  }
+
   /// 빈 친구 데이터 생성
   static Map<String, dynamic> _createEmptyFriendData(String docId) {
     return {
       'id': docId,
       'uid': docId,
       'average_rating': 0.0,
+      'match_count': 0,
       'isActive': true,
       'isApproved': true,
     };

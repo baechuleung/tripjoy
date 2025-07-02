@@ -15,6 +15,7 @@ import 'theme.dart';
 import 'firebase_service.dart';
 import 'services/fcm_service/fcm_service.dart';
 import 'services/fcm_service/handlers/message_handler.dart';
+import 'services/version_check_service.dart';
 
 // 전역 내비게이터 키는 message_handler.dart에서 가져옴
 final GlobalKey<NavigatorState> navigatorKey = messageHandlerNavigatorKey;
@@ -214,6 +215,13 @@ void main() async {
       Future.delayed(const Duration(seconds: 3), () {
         AppInitializer().requestNotificationPermission();
       });
+
+      // 버전 체크 (앱 시작 후 2초 뒤)
+      Future.delayed(const Duration(seconds: 2), () {
+        if (navigatorKey.currentContext != null) {
+          VersionCheckService.checkVersion(navigatorKey.currentContext!);
+        }
+      });
     });
   } catch (e, stackTrace) {
     print('🚨 앱 초기화 치명적 오류: $e');
@@ -239,6 +247,28 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     super.initState();
     print('📱 MyApp.initState 호출됨');
     WidgetsBinding.instance.addObserver(this);
+
+    // 앱 시작 시 iOS 배지 클리어
+    _clearAppBadge();
+
+    // FCM 초기화
+    _initializeFCM();
+  }
+
+  // FCM 초기화 메서드 추가
+  Future<void> _initializeFCM() async {
+    try {
+      // FCM 서비스 초기화는 AppInitializer에서 이미 처리됨
+      // 현재 사용자가 로그인되어 있다면 토큰 업데이트
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        await FCMService.onUserLogin(user.uid);
+      }
+
+      print('✅ FCM 초기화 완료');
+    } catch (e) {
+      print('❌ FCM 초기화 실패: $e');
+    }
   }
 
   @override
@@ -246,7 +276,18 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     print('📱 앱 생명주기 상태 변경: $state');
     if (state == AppLifecycleState.resumed) {
       AppInitializer().onAppResumed();
+      // 앱이 포그라운드로 돌아올 때 배지 클리어
+      print('🔔 앱이 포그라운드로 돌아옴 - 배지 클리어');
+      _clearAppBadge();
+    } else if (state == AppLifecycleState.paused) {
+      // 앱이 백그라운드로 갈 때
+      print('🔔 앱이 백그라운드로 전환됨');
     }
+  }
+
+  void _clearAppBadge() async {
+    // FCMService의 clearBadge 메서드 사용
+    await FCMService.clearBadge();
   }
 
   @override

@@ -19,7 +19,12 @@ import '../widgets/history_tab_view.dart';
 import '../dialogs/charge_confirm_dialog.dart';
 
 class PointPage extends StatefulWidget {
-  const PointPage({super.key});
+  final int initialTabIndex;
+
+  const PointPage({
+    super.key,
+    this.initialTabIndex = 0,
+  });
 
   @override
   State<PointPage> createState() => _PointPageState();
@@ -30,16 +35,20 @@ class _PointPageState extends State<PointPage> with SingleTickerProviderStateMix
   final NumberFormat _numberFormat = NumberFormat('#,###');
   int _currentPoints = 0;
   bool _isLoading = true;
+  StreamSubscription<DocumentSnapshot>? _pointsSubscription;
 
-  // 결제 관련 변수
-  late PaymentService _paymentService;
+  PaymentService? _paymentService;
   StreamSubscription<List<PurchaseDetails>>? _purchaseSubscription;
   bool _isPurchasing = false;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(
+      length: 2,
+      vsync: this,
+      initialIndex: widget.initialTabIndex,
+    );
     _loadUserPoints();
     _initializePayment();
   }
@@ -48,22 +57,50 @@ class _PointPageState extends State<PointPage> with SingleTickerProviderStateMix
   void dispose() {
     _tabController.dispose();
     _purchaseSubscription?.cancel();
-    _paymentService.dispose();
+    _pointsSubscription?.cancel();
+    _paymentService?.dispose();
     super.dispose();
   }
 
   Future<void> _initializePayment() async {
-    // 플랫폼별 결제 서비스 초기화
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      return;
+    }
+
     if (Platform.isAndroid) {
       _paymentService = AndroidPaymentService();
     } else if (Platform.isIOS) {
       _paymentService = IOSPaymentService();
+      // iOS의 경우 서버 검증 콜백 설정
+      (_paymentService as IOSPaymentService).onPurchaseComplete = (success, message) {
+        if (mounted) {
+          setState(() {
+            _isPurchasing = false;
+          });
+
+          if (success) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(message),
+                backgroundColor: Colors.green,
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(message),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      };
     } else {
-      print('지원하지 않는 플랫폼입니다.');
       return;
     }
 
-    final bool initialized = await _paymentService.initialize();
+    final bool initialized = await _paymentService!.initialize();
     if (!initialized) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -76,47 +113,48 @@ class _PointPageState extends State<PointPage> with SingleTickerProviderStateMix
       return;
     }
 
-    // 구매 업데이트 리스너 설정
-    _purchaseSubscription = _paymentService.purchaseStream.listen((purchaseDetailsList) {
+    _purchaseSubscription = _paymentService!.purchaseStream.listen((purchaseDetailsList) {
       _handlePurchaseUpdates(purchaseDetailsList);
     });
   }
 
   void _handlePurchaseUpdates(List<PurchaseDetails> purchaseDetailsList) async {
     for (PurchaseDetails purchaseDetails in purchaseDetailsList) {
+      print('📱 구매 상태: ${purchaseDetails.status}, pending: ${purchaseDetails.pendingCompletePurchase}');
+
+      // iOS에서 restored는 이미 필터링되었지만, 혹시 모르니 여기서도 체크
+      if (purchaseDetails.status == PurchaseStatus.restored) {
+        print('📱 restored 무시됨');
+        continue;
+      }
+
       if (purchaseDetails.status == PurchaseStatus.pending) {
         setState(() {
           _isPurchasing = true;
         });
-      } else {
-        if (purchaseDetails.status == PurchaseStatus.error) {
-          setState(() {
-            _isPurchasing = false;
-          });
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('결제 오류: ${purchaseDetails.error?.message ?? "알 수 없는 오류"}'),
-                backgroundColor: Colors.red,
-              ),
-            );
-          }
-        } else if (purchaseDetails.status == PurchaseStatus.purchased) {
-          // 결제 성공 - 포인트 충전 처리
+      } else if (purchaseDetails.status == PurchaseStatus.error) {
+        setState(() {
+          _isPurchasing = false;
+        });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('결제 오류: ${purchaseDetails.error?.message ?? "알 수 없는 오류"}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } else if (purchaseDetails.status == PurchaseStatus.purchased) {
+        // Android의 경우에만 여기서 처리
+        if (Platform.isAndroid) {
           try {
             await PaymentHandler.handleSuccessfulPurchase(purchaseDetails, _currentPoints);
 
-            // 포인트 패키지 찾기
             final package = PointPackage.packages.firstWhere(
                   (p) => p.androidProductId == purchaseDetails.productID ||
                   p.iosProductId == purchaseDetails.productID,
               orElse: () => PointPackage.packages.first,
             );
-
-            // 포인트 업데이트
-            setState(() {
-              _currentPoints += package.points;
-            });
 
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -126,7 +164,14 @@ class _PointPageState extends State<PointPage> with SingleTickerProviderStateMix
                 ),
               );
             }
+
+            setState(() {
+              _isPurchasing = false;
+            });
           } catch (e) {
+            setState(() {
+              _isPurchasing = false;
+            });
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -137,9 +182,19 @@ class _PointPageState extends State<PointPage> with SingleTickerProviderStateMix
             }
           }
         }
+        // iOS는 IOSPaymentService의 콜백에서 처리됨
+      } else if (purchaseDetails.status == PurchaseStatus.canceled) {
         setState(() {
           _isPurchasing = false;
         });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('결제가 취소되었습니다.'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
       }
     }
   }
@@ -147,23 +202,42 @@ class _PointPageState extends State<PointPage> with SingleTickerProviderStateMix
   Future<void> _loadUserPoints() async {
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser == null) return;
+      if (currentUser == null) {
+        setState(() {
+          _isLoading = false;
+          _currentPoints = 0;
+        });
+        return;
+      }
 
-      final userDoc = await FirebaseFirestore.instance
+      _pointsSubscription?.cancel();
+
+      _pointsSubscription = FirebaseFirestore.instance
           .collection('users')
           .doc(currentUser.uid)
-          .get();
-
-      if (userDoc.exists) {
+          .snapshots()
+          .listen((snapshot) {
+        if (snapshot.exists) {
+          setState(() {
+            _currentPoints = snapshot.data()?['points'] ?? 0;
+            _isLoading = false;
+          });
+        } else {
+          setState(() {
+            _isLoading = false;
+            _currentPoints = 0;
+          });
+        }
+      }, onError: (error) {
         setState(() {
-          _currentPoints = userDoc.data()?['points'] ?? 0;
           _isLoading = false;
+          _currentPoints = 0;
         });
-      }
+      });
     } catch (e) {
-      print('포인트 로드 오류: $e');
       setState(() {
         _isLoading = false;
+        _currentPoints = 0;
       });
     }
   }
@@ -194,13 +268,10 @@ class _PointPageState extends State<PointPage> with SingleTickerProviderStateMix
       ),
       body: Column(
         children: [
-          // 현재 포인트 표시
           PointHeaderWidget(
             currentPoints: _currentPoints,
             isLoading: _isLoading,
           ),
-
-          // 탭바
           Container(
             color: Colors.white,
             padding: const EdgeInsets.all(16),
@@ -244,18 +315,18 @@ class _PointPageState extends State<PointPage> with SingleTickerProviderStateMix
               ),
             ),
           ),
-
-          // 탭 콘텐츠
+          Container(
+            color: const Color(0xFFF9F9F9),
+            height: 10,
+          ),
           Expanded(
             child: TabBarView(
               controller: _tabController,
               children: [
-                // 포인트 충전 탭
                 ChargeTabView(
                   isPurchasing: _isPurchasing,
                   onChargePressed: _showChargeConfirmDialog,
                 ),
-                // 사용 내역 탭
                 const HistoryTabView(),
               ],
             ),
@@ -266,27 +337,51 @@ class _PointPageState extends State<PointPage> with SingleTickerProviderStateMix
   }
 
   void _showChargeConfirmDialog(PointPackage package) {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('포인트 충전을 위해 로그인이 필요합니다.'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
     ChargeConfirmDialog.show(
       context: context,
       package: package,
+      points: _currentPoints,
       onConfirm: () => _purchasePoints(package),
     );
   }
 
   Future<void> _purchasePoints(PointPackage package) async {
+    if (_paymentService == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('결제 서비스가 초기화되지 않았습니다. 잠시 후 다시 시도해주세요.'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+      return;
+    }
+
     setState(() {
       _isPurchasing = true;
     });
 
     try {
-      final success = await _paymentService.purchasePoints(package);
+      final success = await _paymentService!.purchasePoints(package);
       if (!success && mounted) {
         setState(() {
           _isPurchasing = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('결제를 시작할 수 없습니다.'),
+            content: Text('결제를 시작할 수 없습니다. 잠시 후 다시 시도해주세요.'),
             backgroundColor: Colors.red,
           ),
         );

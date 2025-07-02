@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tripjoy/components/side_drawer/mypage/reservation/reservation_page.dart';
+import 'package:tripjoy/mypage/reservation/reservation_page.dart';
 import 'message_handler.dart';
 
 class ReservationHandler {

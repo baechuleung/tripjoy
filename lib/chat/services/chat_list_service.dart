@@ -79,6 +79,23 @@ class ChatListService {
         }
       }
 
+      // 채팅 타입 정보 가져오기 - 병렬 처리
+      final chatTypeFutures = <String, Future<String?>>{};
+      for (var chatId in chatDataMap.keys) {
+        chatTypeFutures[chatId] = _chatService.getChatTypeById(chatId);
+      }
+
+      // 모든 채팅 타입 정보 병렬로 가져오기
+      final chatTypeResults = <String, String?>{};
+      for (var entry in chatTypeFutures.entries) {
+        try {
+          chatTypeResults[entry.key] = await entry.value;
+        } catch (e) {
+          print('채팅 타입 로드 오류 (건너뜀): ${entry.key} - $e');
+          chatTypeResults[entry.key] = null;
+        }
+      }
+
       // 채팅 목록 항목 생성
       for (var chatId in chatDataMap.keys) {
         final chatData = chatDataMap[chatId]!;
@@ -102,6 +119,9 @@ class ChatListService {
           // 차단된 채팅인 경우 메시지 변경
           final displayMessage = isBlocked ? _blockedChatText : latestMessage;
 
+          // 채팅 타입 가져오기
+          final chatType = chatTypeResults[chatId];
+
           // 채팅 목록 아이템 생성
           final chatItem = ChatListItem(
             chatId: chatId,
@@ -113,6 +133,7 @@ class ChatListService {
             timestamp: timestamp,
             unreadCount: unreadCount,
             isBlocked: isBlocked,
+            type: chatType,
           );
 
           resultList.add(chatItem);
@@ -183,6 +204,23 @@ class ChatListService {
         }
       }
 
+      // 채팅 타입 정보 가져오기 - 병렬 처리
+      final chatTypeFutures = <String, Future<String?>>{};
+      for (var chatId in chatDataMap.keys) {
+        chatTypeFutures[chatId] = _chatService.getChatTypeById(chatId);
+      }
+
+      // 모든 채팅 타입 정보 병렬로 가져오기
+      final chatTypeResults = <String, String?>{};
+      for (var entry in chatTypeFutures.entries) {
+        try {
+          chatTypeResults[entry.key] = await entry.value;
+        } catch (e) {
+          print('채팅 타입 로드 오류 (건너뜀): ${entry.key} - $e');
+          chatTypeResults[entry.key] = null;
+        }
+      }
+
       // 채팅 목록 항목 생성
       for (var chatId in chatDataMap.keys) {
         final chatData = chatDataMap[chatId]!;
@@ -206,6 +244,9 @@ class ChatListService {
           // 차단된 채팅인 경우 메시지 변경
           final displayMessage = isBlocked ? _blockedChatText : latestMessage;
 
+          // 채팅 타입 가져오기
+          final chatType = chatTypeResults[chatId];
+
           // 채팅 목록 아이템 생성
           final chatItem = ChatListItem(
             chatId: chatId,
@@ -217,6 +258,7 @@ class ChatListService {
             timestamp: timestamp,
             unreadCount: unreadCount,
             isBlocked: isBlocked,
+            type: chatType,
           );
 
           resultList.add(chatItem);
